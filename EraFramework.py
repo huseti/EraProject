@@ -11,21 +11,27 @@ from Technology import Technology
 from Vulnerability import Vulnerability
 from tkinter.filedialog import askopenfilename
 from tkinter import Tk
-import pandas as pd
 
 
 # Main Function to calculate an ERA Model by importing EA Data via Excel Upload
 def main():
     # ask for file upload of EA Data
-    inputfiles = input_file_dialog()
-    # parsing the Excel files into process, application and technology classes
-    excel_parser = BskExcelParser(inputfiles[0], inputfiles[1], inputfiles[2]).generate_era_classes()
-    # excel_parser.generate_era_classes()
+    input_files = input_file_dialog()
 
-    # TODO: Excelklassen erstellen
+    # parsing the Excel files into process, application and technology objects
+    excel_parser = BskExcelParser(input_files[0], input_files[1], input_files[2])
+    excel_parser.generate_era_classes()
+
+    # get the dictionaries of the Process, Application and Technology objects
+    processes: dict[int, Process] = excel_parser.processes
+    applications: dict[int, Application] = excel_parser.applications
+    technologies: dict[int, Technology] = excel_parser.technologies
 
     # TODO: Eingangsgrade/ Ausgangsgrade berechnen
+
     # TODO: Anbindung an CVSS API
+
+    # TODO: Alle Vulnerabilitäten erhalten
     # TODO: Berechnung des ERA Scores
     # TODO: Aufbau des JSON Files
 

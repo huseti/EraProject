@@ -6,6 +6,11 @@ class Process:
         self.name = name
         self.responsible = ''
         self.protection_requirements = ''
+        self.dependent_on_applications: dict[int, float] = {}   # save the Application ID and the impact score
+
+    # ToString Method
+    def __str__(self):
+        return 'Process {self.id}'.format(self=self)
 
     # Definition of Getters and Setters
     @property
@@ -41,4 +46,13 @@ class Process:
             self._protection_requirements = 'Very High'
         elif protection_requirements == 'Very High':
             self._protection_requirements = 'Very High'
+
+    @property
+    def dependent_on_applications(self) -> dict:
+        return self._dependent_on_applications
+
+    @dependent_on_applications.setter
+    def dependent_on_applications(self, dependent_on_applications: dict):
+        self._dependent_on_applications = dependent_on_applications
+
 
