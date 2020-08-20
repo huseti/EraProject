@@ -30,8 +30,8 @@ def main():
     # TODO: Eingangsgrade/ Ausgangsgrade berechnen
 
     # TODO: Anbindung an CVSS API
-
     # TODO: Alle Vulnerabilitäten erhalten
+
     # TODO: Berechnung des ERA Scores
     # TODO: Aufbau des JSON Files
 

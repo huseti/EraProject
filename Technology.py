@@ -1,4 +1,7 @@
-class Technology:
+import Asset
+
+
+class Technology(Asset):
 
     # Constructor
     def __init__(self, id: int, vendor: str, product: str, version: str):

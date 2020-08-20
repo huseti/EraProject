@@ -1,4 +1,7 @@
-class Process:
+import Asset
+
+
+class Process(Asset):
 
     # Constructor
     def __init__(self, id: str, name: str):

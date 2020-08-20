@@ -1,4 +1,7 @@
-class Application:
+import Asset
+
+
+class Application(Asset):
 
     # Constructor
     def __init__(self, id: int, name: str):
