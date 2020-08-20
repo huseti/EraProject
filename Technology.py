@@ -1,20 +1,15 @@
-import Asset
+from Asset import Asset
 
 
 class Technology(Asset):
 
     # Constructor
     def __init__(self, id: int, vendor: str, product: str, version: str):
-        self.id = id
-        self.name = ''
+        super().__init__(id, vendor + ' ' + product)
         self.vendor = vendor
         self.product = product
         self.version = version
         self.dependent_on_vulnerabilities: dict[str, str] = {}  # save the CVE ID as key and value
-
-    # ToString Method
-    def __str__(self):
-        return 'Technology {self.id}'.format(self=self)
 
     # Definition of Getters and Setters
     @property

@@ -1,19 +1,15 @@
-import Asset
+from Asset import Asset
 
 
 class Process(Asset):
 
     # Constructor
     def __init__(self, id: str, name: str):
-        self.id = id
-        self.name = name
+        super().__init__(id, name)
         self.responsible = ''
         self.protection_requirements = ''
         self.dependent_on_applications: dict[int, float] = {}   # save the Application ID and the impact score
 
-    # ToString Method
-    def __str__(self):
-        return 'Process {self.id}'.format(self=self)
 
     # Definition of Getters and Setters
     @property

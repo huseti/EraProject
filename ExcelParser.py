@@ -136,7 +136,6 @@ class BskExcelParser(ExcelParser):
                                                                   vendor=row['Technologie_Vendor'],
                                                                   product=row['Technologie_Product'],
                                                                   version=row['Technologie_Version'])
-            self.technologies[row['Technologie_ID']].name = row['Technologie_Vendor'] + ' ' + row['Technologie_Product']
 
     def __generate_dependencies_application_technology(self, row):
         # only append the dependency to the application object, if it does not exist yet

@@ -5,3 +5,6 @@ class Asset:
         self.id = id
         self.name = name
 
+    # ToString Method
+    def __str__(self):
+        return 'Asset {self.id}'.format(self=self)

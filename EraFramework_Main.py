@@ -4,6 +4,7 @@
 
 # TODO: Sort all Imports
 # imports
+from CVEConnector import NVDConnector
 from ExcelParser import BskExcelParser
 from Process import Process
 from Application import Application
@@ -27,12 +28,12 @@ def main():
     applications: dict[int, Application] = excel_parser.applications
     technologies: dict[int, Technology] = excel_parser.technologies
 
+    # TODO: Typendefinition für vuls
+    # get the dictionary with all vulnerabilites objects from the CVE API
+    vulnerabilities: dict[str, Vulnerability] = NVDConnector().get_all_vulnerabilities_per_technology(technologies)
+
     # TODO: Eingangsgrade/ Ausgangsgrade berechnen
-
-    # TODO: Anbindung an CVSS API
-    # TODO: Alle Vulnerabilitäten erhalten
-
-    # TODO: Berechnung des ERA Scores
+    # TODO: Berechnung des ERA Scores - erst Technologies, dann Apps (Logik mit Eingangsgraden), dann Prozesse
     # TODO: Aufbau des JSON Files
 
 
