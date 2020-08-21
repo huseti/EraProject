@@ -6,6 +6,7 @@ from Vulnerability import Vulnerability
 from ERAScoreCalculator import ERAScoreCalculator
 from CVEConnector import NVDConnector
 from ExcelParser import BskExcelParser
+from ERAJsonParser import ERAJsonParser
 
 
 def main():

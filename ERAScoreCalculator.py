@@ -1,7 +1,7 @@
 # imports
+from Application import Application
 import numpy as np
 from Process import Process
-from Application import Application
 from Technology import Technology
 from Vulnerability import Vulnerability
 
@@ -34,6 +34,7 @@ class ERAScoreCalculator:
         technology.era_score = max_score
         technology.impacting_asset_class = 'Vulnerability'
         technology.impacting_asset_id = max_asset_id
+        technology.impacting_asset_era_score = max_score
 
     def __calculate_affecting_vulnerabilities_technology(self, technology: Technology):
         # save all the vulnerabilites that affect a technology
@@ -133,7 +134,7 @@ class ERAScoreCalculator:
         process.count_affecting_vulnerabilites = len(np.unique(process.affecting_vulnerabilites))
 
     def calculate_era_scores(self):
-        # calculate the indegrees of applications to determine the order to calculate ERA scores for applications
+        # calculate the in-degrees of applications to determine the order to calculate ERA scores for applications
         self.__calculate_in_degree()
 
         # calculate the era scores for each technology and calculate the total affecting vulnerabilities
