@@ -1,5 +1,5 @@
 # imports
-import pandas as pd
+import collections
 from Process import Process
 from Application import Application
 from Technology import Technology
@@ -14,7 +14,6 @@ class ERAScoreCalculator:
     # Constructor
     def __init__(self, processes: dict, applications: dict,
                  technologies: dict, vulnerabilities: dict):
-        # TODO: Datentyp überlegen
         self.in_degrees: dict[int, list] = {}
         self.processes = processes
         self.applications = applications
@@ -24,17 +23,22 @@ class ERAScoreCalculator:
     def __calculate_era_score_technology(self, technology: Technology):
         max_score = 0.0
         max_asset_id = ''
-        # TODO: Kommentar schreiben und herausfinden wieso CVE ID nicht korrekt abgespeichert wird
+        # loop over vulnerabilites per technology and define the ERA score according to the highest CVSS Score of vul.
         for vulnerability_id in technology.dependent_on_vulnerabilities.keys():
             if self.vulnerabilities[vulnerability_id].cvss_score > max_score:
                 max_score = self.vulnerabilities[vulnerability_id].cvss_score
                 max_asset_id = self.vulnerabilities[vulnerability_id].id
 
+        # set the ERA Score and save the vulnerability that affected the era score
         technology.era_score = max_score
         technology.impacting_asset_class = 'Vulnerability'
         technology.impacting_asset_id = max_asset_id
 
-        # TODO: Calculate the impacting vulnerabilities and their count
+    def __calculate_affecting_vulnerabilities_technology(self, technology: Technology):
+        # save all the vulnerabilites that affect a technology
+        technology.affecting_vulnerabilites = list(technology.dependent_on_vulnerabilities.keys())
+        # save the count of all affecting vulnerabilities
+        technology.count_affecting_vulnerabilites = len(technology.dependent_on_vulnerabilities)
 
     def __calculate_in_degree(self):
         # calculate the in degrees of applications (focusing on the dependencies from application to application)
@@ -45,37 +49,54 @@ class ERAScoreCalculator:
             else:
                 self.in_degrees[len(app.dependent_on_applications)] += [app.id]
 
+    def __calculate_era_score_application(self, application: Application):
+        # TODO: Berechnung des ERA Scores der Anwendungen
+        pass
+
     def __calculate_affecting_vulnerabilities_application(self, application: Application):
+        # TODO: Berechnung der totalen vulnerabilitäten der Anwendungen
         pass
 
-    def __calculate_era_score_application(self):
+    def __calculate_era_score_process(self, process: Process):
+        # TODO: Berechnung des ERA Scores der Prozesse
         pass
 
-    def __calculate_era_score_process(self):
+    def __calculate_affecting_vulnerabilities_process(self, process: Process):
+        # TODO: Berechnung der totalen vulnerabilitäten der prozesse
         pass
 
     def calculate_era_scores(self):
         # calculate the indegrees of applications to determine the order to calculate ERA scores for applications
         self.__calculate_in_degree()
 
+        # calculate the era scores for each technology and calculate the total affecting vulnerabilities
         for technology in self.technologies.values():
             self.__calculate_era_score_technology(technology)
+            self.__calculate_affecting_vulnerabilities_technology(technology)
 
-        # TODO: Berechnung des ERA Scores - erst Technologies, dann Apps (Logik mit Eingangsgraden), dann Prozesse
-        # TODO: Berechnung der totalen vulnerabilitäten
-        pass
+        # calculate the era scores for each application - start with the lowest in-degree and
+        # calculate total affecting vulnerabilities
+        for in_degree in sorted(self.in_degrees.keys()):
+            for application_id in self.in_degrees[in_degree]:
+                self.__calculate_era_score_application(self.applications[application_id])
+                self.__calculate_affecting_vulnerabilities_application(self.applications[application_id])
+
+        # calculate the era scores for each process and calculate the total affecting vulnerabilities
+        for process in self.processes.values():
+            self.__calculate_era_score_process(process)
+            self.__calculate_affecting_vulnerabilities_process(process)
 
 
 def main():
 
     # Generate Test Vulnerabilities
-    vul1 = Vulnerability(id="CVE_1", name="Hacker")
+    vul1 = Vulnerability(id='CVE_1', name="Hacker")
     vul1.cvss_score = 8.9
-    vul2 = Vulnerability(id="CVE_2", name="Hacker")
+    vul2 = Vulnerability(id='CVE_2', name="Hacker")
     vul2.cvss_score = 2.8
-    vul3 = Vulnerability(id="CVE_3", name="Hacker")
+    vul3 = Vulnerability(id='CVE_3', name="Hacker")
     vul3.cvss_score = 5.2
-    vul4 = Vulnerability(id="CVE_4", name="Hacker")
+    vul4 = Vulnerability(id='CVE_4', name="Hacker")
     vul4.cvss_score = 6.1
 
     # Generate Test Technologies
@@ -112,20 +133,25 @@ def main():
     # fill objects in dictionaries
     v = {vul1.id: vul1, vul2.id: vul2, vul3.id: vul3, vul4.id: vul4}
     t = {tech1.id: tech1, tech2.id: tech2, tech3.id: tech3}
-    a = {app1.id: app1, app2.id: app2, app3.id: app3}
+    a = {app2.id: app2, app1.id: app1, app3.id: app3}
     p = {pro1.id: pro1, pro2.id: pro2}
-
-    print(v.keys())
 
     era = ERAScoreCalculator(p, a, t, v)
     era.calculate_era_scores()
     print(era.in_degrees)
-    print(era.technologies[1].era_score)
-    print(era.technologies[1].impacting_asset_id)
-    print(era.technologies[2].era_score)
-    print(era.technologies[2].impacting_asset_id)
-    print(era.technologies[3].era_score)
-    print(era.technologies[3].impacting_asset_id)
+    print(era.applications[1].era_score)
+    print(era.applications[1].impacting_asset_id)
+    print(era.applications[1].affecting_vulnerabilites)
+    print(era.applications[1].count_affecting_vulnerabilites)
+    print(era.applications[2].era_score)
+    print(era.applications[2].impacting_asset_id)
+    print(era.applications[2].affecting_vulnerabilites)
+    print(era.applications[2].count_affecting_vulnerabilites)
+    print(era.applications[3].era_score)
+    print(era.applications[3].impacting_asset_id)
+    print(era.applications[3].impacting_asset_class)
+    print(era.applications[3].affecting_vulnerabilites)
+    print(era.applications[3].count_affecting_vulnerabilites)
 
 
 if __name__ == '__main__':

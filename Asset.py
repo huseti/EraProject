@@ -10,7 +10,7 @@ class Asset:
         self.impacting_asset_impact_score = 0.0
         self.impacting_asset_class = ''
         self.impacting_asset_id = ''
-        self.affecting_vulnerabilites = {}
+        self.affecting_vulnerabilites = []
         self.count_affecting_vulnerabilites = 0
 
     # ToString Method
