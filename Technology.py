@@ -6,28 +6,13 @@ class Technology(Asset):
     # Constructor
     def __init__(self, id: int, vendor: str, product: str, version: str):
         super().__init__(id, vendor + ' ' + product)
+        self.protection_requirements = 'Standard'
         self.vendor = vendor
         self.product = product
         self.version = version
         self.dependent_on_vulnerabilities: dict[str, str] = {}  # save the CVE ID as key and value
 
     # Definition of Getters and Setters
-    @property
-    def id(self) -> int:
-        return self._id
-
-    @id.setter
-    def id(self, id: int):
-        self._id = id
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        self._name = name
-
     @property
     def vendor(self) -> str:
         return self._vendor

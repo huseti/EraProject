@@ -24,46 +24,12 @@ class Application(Asset):
 
     # Definition of Getters and Setters
     @property
-    def id(self) -> int:
-        return self._id
-
-    @id.setter
-    def id(self, id: int):
-        self._id = id
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        self._name = name
-
-    @property
     def description(self) -> str:
         return self._description
 
     @description.setter
     def description(self, description: str):
         self._description = description
-
-    @property
-    def protection_requirements(self) -> str:
-        return self._protection_requirements
-
-    # Mapping of Protection requirements
-    @protection_requirements.setter
-    def protection_requirements(self, protection_requirements: str):
-        if protection_requirements == 'Standard':
-            self._protection_requirements = 'Standard'
-        elif protection_requirements == 'Hoch':
-            self._protection_requirements = 'High'
-        elif protection_requirements == 'High':
-            self._protection_requirements = 'High'
-        elif protection_requirements == 'Sehr Hoch':
-            self._protection_requirements = 'Very High'
-        elif protection_requirements == 'Very High':
-            self._protection_requirements = 'Very High'
 
     @property
     def responsible_system(self) -> str:

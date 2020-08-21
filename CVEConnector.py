@@ -1,8 +1,6 @@
 # imports
 import json
 import requests
-import pandas as pd
-from Technology import Technology
 from Vulnerability import Vulnerability
 
 
