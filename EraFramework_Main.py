@@ -69,7 +69,7 @@ def main():
     # TODO: Aufbau des JSON Files -> JSON File abspeichern
     # Save the ERA model to JSON
     json_parser = ERAJsonParser(processes, applications, technologies, vulnerabilities)
-    json_parser.save_era_model_to_json(filename=save_file["filename"], filepath=save_file["filepath"])
+    json_parser.save_era_model_to_json(save_file["filepath"], save_file["filename"])
 
 
 # ask for file upload of EA Data
@@ -80,9 +80,13 @@ def input_file_dialog() -> dict:
     file_applications = r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\SystemListe_Erweitert.csv"
     file_technologies = r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\Technologieliste.csv"
     file_informationflows = r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\Infoflussliste.csv"
-    # file_applications: str = askopenfilename(title="Please select an Excel File that contains your process and application data")
-    # fileTechnologies: str = askopenfilename(title="Please select an Excel File that contains your technology data")
-    # fileInformationflows: str = askopenfilename(title="Please select an Excel File that contains your information flow data")
+    #file_applications: str = askopenfilename(
+    #    title="Please select an Excel File that contains your process and application data",
+    #    filetypes=[("CSV files", "*.csv")])
+    #file_technologies: str = askopenfilename(
+    #    title="Please select an Excel File that contains your technology data",
+    #    filetypes=[("CSV files", "*.csv")
+    #file_technologies: str = askopenfilename(title="Please select an Excel File that contains your information flow data", filetypes=[("CSV files", "*.csv")
     return {'applications': file_applications, 'technologies': file_technologies, 'infoflows': file_informationflows}
 
 
@@ -91,8 +95,8 @@ def save_file_dialog() -> dict:
     Tk().withdraw()
     # TODO: Speicherdialog entwickeln
     date_obj = datetime.now()
-    file_path = r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\""
-    file_name = "ERA_Model_" + str(date_obj.year) + '_', str(date_obj.month) + '_' + str(date_obj.day)
+    file_path = "C:/Users/thuse/Google Drive/Dokumente/Beruf/FU/4. Semester/Quellen/EAM Datensatz/Bearbeitet/"
+    file_name = "ERA_Model_" + str(date_obj.year) + '_' + str(date_obj.month) + '_' + str(date_obj.day) + '.json'
     return {'filename': file_name, 'filepath': file_path}
 
 

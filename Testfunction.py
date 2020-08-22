@@ -7,6 +7,9 @@ from ERAScoreCalculator import ERAScoreCalculator
 from CVEConnector import NVDConnector
 from ExcelParser import BskExcelParser
 from ERAJsonParser import ERAJsonParser
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
+from datetime import datetime
 
 
 def main():
@@ -92,10 +95,22 @@ def main():
     print(era.processes[2].affecting_vulnerabilites)
     print(era.processes[2].count_affecting_vulnerabilites)
 
+    save_file = save_file_dialog()
+
     parser = ERAJsonParser(p, a, t, v)
-    parser.save_era_model_to_json(r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\"", 'Test.json')
+    parser.save_era_model_to_json(save_file["filepath"], save_file["filename"])
     print(parser.json_file)
+
+
+def save_file_dialog() -> dict:
+    Tk().withdraw()
+    # TODO: Speicherdialog entwickeln
+    date_obj = datetime.now()
+    file_path = "C:/Users/thuse/Google Drive/Dokumente/Beruf/FU/4. Semester/Quellen/EAM Datensatz/Bearbeitet/"
+    file_name = "ERA_Model_" + str(date_obj.year) + '_' + str(date_obj.month) + '_' + str(date_obj.day) + '.json'
+    return {'filename': file_name, 'filepath': file_path}
 
 
 if __name__ == '__main__':
     main()
+

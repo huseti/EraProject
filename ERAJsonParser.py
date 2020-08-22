@@ -1,6 +1,7 @@
 # imports
 from Application import Application
 import json
+import os
 from Process import Process
 from Technology import Technology
 from Vulnerability import Vulnerability
@@ -97,11 +98,19 @@ class ERAJsonParser:
             })
 
     def __load_edges_to_json(self):
-        # TODO: Implementieren
+        # TODO: Implementieren für Tech zu Vulnerabilität
+        # TODO: Implementieren für App zu Tech
+        # TODO: Implementieren für App zu App
+        # TODO: Implementieren für Prozess zu App
         pass
 
-    def __save_json_file(self, filepath, filename):
-        # Abspeichern mit Filepath überprüfen
-        with open(filename, 'w') as outfile:
+    def __save_json_file(self, filepath: str, filename: str):
+        # create the total filepath
+        total_filepath = os.path.join(filepath, filename)
+        # if path does not exist, create it
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+        # Save the json file in the selected directory
+        with open(total_filepath, 'w') as outfile:
             json.dump(self.json_file, outfile)
 
