@@ -92,6 +92,10 @@ def main():
     print(era.processes[2].affecting_vulnerabilites)
     print(era.processes[2].count_affecting_vulnerabilites)
 
+    parser = ERAJsonParser(p, a, t, v)
+    parser.save_era_model_to_json(r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\"", 'Test.json')
+    print(parser.json_file)
+
 
 if __name__ == '__main__':
     main()

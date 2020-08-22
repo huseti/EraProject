@@ -11,6 +11,7 @@ class Technology(Asset):
         self.product = product
         self.version = version
         self.dependent_on_vulnerabilities: dict[str, str] = {}  # save the CVE ID as key and value
+        self.impacting_asset_impact_score = 1.0
 
     # Definition of Getters and Setters
     @property
