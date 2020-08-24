@@ -8,11 +8,14 @@ from CVEConnector import NVDConnector
 from ExcelParser import BskExcelParser
 from ERAJsonParser import ERAJsonParser
 from tkinter import Tk
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 from datetime import datetime
+import os
+import timeit
 
 
 def main():
+    start = timeit.default_timer()
 
     # Generate Test Vulnerabilities
     vul1 = Vulnerability(id='CVE_1', name="Hacker")
@@ -25,34 +28,34 @@ def main():
     vul4.cvss_score = 6.1
 
     # Generate Test Technologies
-    tech1 = Technology(1, 'Mozilla', 'Firefox', '66.0.2')
+    tech1 = Technology(100, 'Mozilla', 'Firefox', '66.0.2')
     tech1.dependent_on_vulnerabilities[vul1.id] = vul1.id
-    tech2 = Technology(2, 'Adobe', 'Flash Player', '32.0.0.207')
+    tech2 = Technology(200, 'Adobe', 'Flash Player', '32.0.0.207')
     tech2.dependent_on_vulnerabilities[vul2.id] = vul2.id
     tech2.dependent_on_vulnerabilities[vul3.id] = vul3.id
-    tech3 = Technology(3, 'Test', 'Testproduct', '3.4.2')
+    tech3 = Technology(300, 'Test', 'Testproduct', '3.4.2')
     tech3.dependent_on_vulnerabilities[vul4.id] = vul4.id
 
     # Generate Test Applications
-    app1 = Application(1, 'Testanwendung')
+    app1 = Application(10, 'Testanwendung')
     app1.protection_requirements = 'Standard'
-    app1.dependent_on_technologies[1] = 0.75
-    app1.dependent_on_technologies[2] = 0.5
-    app2 = Application(2, 'Testanwendung2')
+    app1.dependent_on_technologies[100] = 0.75
+    app1.dependent_on_technologies[200] = 0.5
+    app2 = Application(20, 'Testanwendung2')
     app2.protection_requirements = 'Standard'
-    app2.dependent_on_technologies[3] = 1
-    app2.dependent_on_applications[1] = 0.5
-    app3 = Application(3, 'Testanwendung3')
+    app2.dependent_on_technologies[300] = 1
+    app2.dependent_on_applications[10] = 0.5
+    app3 = Application(30, 'Testanwendung3')
     app3.protection_requirements = 'High'
-    app3.dependent_on_technologies[3] = 0.5
+    app3.dependent_on_technologies[300] = 0.5
 
     # Generate Test Processes
     pro1 = Process(1, "TestprozessA")
     pro1.protection_requirements = 'Very High'
-    pro1.dependent_on_applications[1] = 1.0
-    pro1.dependent_on_applications[2] = 0.75
+    pro1.dependent_on_applications[10] = 1.0
+    pro1.dependent_on_applications[20] = 0.75
     pro2 = Process(2, "TestprozessB")
-    pro2.dependent_on_applications[3] = 1.0
+    pro2.dependent_on_applications[30] = 1.0
     pro2.protection_requirements = 'High'
 
     # fill objects in dictionaries
@@ -64,19 +67,19 @@ def main():
     era = ERAScoreCalculator(p, a, t, v)
     era.calculate_era_scores()
     print(era.in_degrees)
-    print(era.applications[1].era_score)
-    print(era.applications[1].impacting_asset_id)
-    print(era.applications[1].affecting_vulnerabilites)
-    print(era.applications[1].count_affecting_vulnerabilites)
-    print(era.applications[2].era_score)
-    print(era.applications[2].impacting_asset_id)
-    print(era.applications[2].affecting_vulnerabilites)
-    print(era.applications[2].count_affecting_vulnerabilites)
-    print(era.applications[3].era_score)
-    print(era.applications[3].impacting_asset_id)
-    print(era.applications[3].impacting_asset_class)
-    print(era.applications[3].affecting_vulnerabilites)
-    print(era.applications[3].count_affecting_vulnerabilites)
+    print(era.applications[10].era_score)
+    print(era.applications[10].impacting_asset_id)
+    print(era.applications[10].affecting_vulnerabilites)
+    print(era.applications[10].count_affecting_vulnerabilites)
+    print(era.applications[20].era_score)
+    print(era.applications[20].impacting_asset_id)
+    print(era.applications[20].affecting_vulnerabilites)
+    print(era.applications[20].count_affecting_vulnerabilites)
+    print(era.applications[30].era_score)
+    print(era.applications[30].impacting_asset_id)
+    print(era.applications[30].impacting_asset_class)
+    print(era.applications[30].affecting_vulnerabilites)
+    print(era.applications[30].count_affecting_vulnerabilites)
 
     print("-----------------------------------------------")
     print(era.processes[1].era_score)
@@ -101,13 +104,27 @@ def main():
     parser.save_era_model_to_json(save_file["filepath"], save_file["filename"])
     print(parser.json_file)
 
+    stop = timeit.default_timer()
+    print('\nProgram took {:.2f} seconds to execute.'.format(stop-start))
+
 
 def save_file_dialog() -> dict:
     Tk().withdraw()
-    # TODO: Speicherdialog entwickeln
+
+    # generate a initial file and directory
     date_obj = datetime.now()
     file_path = "C:/Users/thuse/Google Drive/Dokumente/Beruf/FU/4. Semester/Quellen/EAM Datensatz/Bearbeitet/"
     file_name = "ERA_Model_" + str(date_obj.year) + '_' + str(date_obj.month) + '_' + str(date_obj.day) + '.json'
+
+    # save file dialog to get the name and path for the JSON ERA File
+    filepath_json = asksaveasfilename(initialdir=file_path, initialfile=file_name,
+                                      title="Please select a filepath to save the ERA Model as JSON file",
+                                      filetypes=[("JSON files", "*.json")], defaultextension="*.json")
+
+    # save the filepath and the filename individually
+    file_path = os.path.split(filepath_json)[0]
+    file_name = os.path.split(filepath_json)[1]
+
     return {'filename': file_name, 'filepath': file_path}
 
 

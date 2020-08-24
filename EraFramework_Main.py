@@ -9,10 +9,12 @@ from datetime import datetime
 from ERAJsonParser import ERAJsonParser
 from ERAScoreCalculator import ERAScoreCalculator
 from ExcelParser import BskExcelParser
+import os
 from Process import Process
 from Technology import Technology
+import timeit
 from tkinter import Tk
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename,asksaveasfilename
 from Vulnerability import Vulnerability
 
 
@@ -20,6 +22,13 @@ from Vulnerability import Vulnerability
 def main():
     # ask for file upload of EA Data
     input_files = input_file_dialog()
+
+    # ask for filepath to save ERA Model JSON
+    save_file = save_file_dialog()
+
+    # count the runtime of the program and give feedback to the console
+    start_time = timeit.default_timer()
+    print("Execution started - ERA Model is being generated")
 
     # parsing the Excel files into process, application and technology objects
     excel_parser = BskExcelParser(input_files['applications'], input_files['technologies'], input_files['infoflows'])
@@ -37,66 +46,50 @@ def main():
     era_score_calculator = ERAScoreCalculator(processes, applications, technologies, vulnerabilities)
     era_score_calculator.calculate_era_scores()
 
-    # TODO: LÖSCHEN
-    print(era_score_calculator.in_degrees)
-    print(technologies[586000].era_score)
-    print(technologies[586000].impacting_asset_era_score)
-    print(technologies[586000].impacting_asset_impact_score)
-    print(technologies[586000].impacting_asset_class)
-    print(technologies[586000].impacting_asset_id)
-    print(technologies[586000].affecting_vulnerabilites)
-    print(technologies[586000].count_affecting_vulnerabilites)
-    print('---------------------------------------------------')
-    print(applications[11201].era_score)
-    print(applications[11201].impacting_asset_era_score)
-    print(applications[11201].impacting_asset_impact_score)
-    print(applications[11201].impacting_asset_class)
-    print(applications[11201].impacting_asset_id)
-    print(applications[11201].affecting_vulnerabilites)
-    print(applications[11201].count_affecting_vulnerabilites)
-    print('---------------------------------------------------')
-    print(processes[30001].era_score)
-    print(processes[30001].impacting_asset_era_score)
-    print(processes[30001].impacting_asset_impact_score)
-    print(processes[30001].impacting_asset_class)
-    print(processes[30001].impacting_asset_id)
-    print(processes[30001].affecting_vulnerabilites)
-    print(processes[30001].count_affecting_vulnerabilites)
-
-    # ask for filepath to save ERA Model JSON
-    save_file = save_file_dialog()
-
-    # TODO: Aufbau des JSON Files -> JSON File abspeichern
     # Save the ERA model to JSON
     json_parser = ERAJsonParser(processes, applications, technologies, vulnerabilities)
     json_parser.save_era_model_to_json(save_file["filepath"], save_file["filename"])
+
+    # Generate a information message to the console
+    print("\nERA Model was successful saved to: {}".format(save_file["filepath"] + save_file["filename"]))
+
+    # count the runtime of the program and give feedback to the console
+    stop_time = timeit.default_timer()
+    print('Program took {:.2f} seconds to execute.'.format(stop_time - start_time))
 
 
 # ask for file upload of EA Data
 def input_file_dialog() -> dict:
     Tk().withdraw()
-    # TODO: uncomment filepicker and delete the static references
-    # TODO: add exception handling for files (need to be .csv)
-    file_applications = r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\SystemListe_Erweitert.csv"
-    file_technologies = r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\Technologieliste.csv"
-    file_informationflows = r"C:\Users\thuse\Google Drive\Dokumente\Beruf\FU\4. Semester\Quellen\EAM Datensatz\Bearbeitet\Infoflussliste.csv"
-    #file_applications: str = askopenfilename(
-    #    title="Please select an Excel File that contains your process and application data",
-    #    filetypes=[("CSV files", "*.csv")])
-    #file_technologies: str = askopenfilename(
-    #    title="Please select an Excel File that contains your technology data",
-    #    filetypes=[("CSV files", "*.csv")
-    #file_technologies: str = askopenfilename(title="Please select an Excel File that contains your information flow data", filetypes=[("CSV files", "*.csv")
+    # open file dialog to get the name and path for the Excel files with ERA Model data to read them in
+    file_applications: str = askopenfilename(
+        title="Please select an Excel File that contains your process and application data",
+        filetypes=[("CSV files", "*.csv")])
+    file_technologies: str = askopenfilename(
+        title="Please select an Excel File that contains your technology data",
+        filetypes=[("CSV files", "*.csv")])
+    file_informationflows: str = askopenfilename(
+        title="Please select an Excel File that contains your information flow data",
+        filetypes=[("CSV files", "*.csv")])
     return {'applications': file_applications, 'technologies': file_technologies, 'infoflows': file_informationflows}
 
 
 # ask for filepath to save ERA Model JSON
 def save_file_dialog() -> dict:
-    Tk().withdraw()
-    # TODO: Speicherdialog entwickeln
+    # generate a initial file and directory
     date_obj = datetime.now()
     file_path = "C:/Users/thuse/Google Drive/Dokumente/Beruf/FU/4. Semester/Quellen/EAM Datensatz/Bearbeitet/"
     file_name = "ERA_Model_" + str(date_obj.year) + '_' + str(date_obj.month) + '_' + str(date_obj.day) + '.json'
+
+    # save file dialog to get the name and path for the JSON ERA File
+    filepath_json = asksaveasfilename(initialdir=file_path, initialfile=file_name,
+                                      title="Please select a filepath to save the ERA Model as JSON file",
+                                      filetypes=[("JSON files", "*.json")], defaultextension="*.json")
+
+    # save the filepath and the filename individually
+    file_path = os.path.split(filepath_json)[0]
+    file_name = os.path.split(filepath_json)[1]
+
     return {'filename': file_name, 'filepath': file_path}
 
 

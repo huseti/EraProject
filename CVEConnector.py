@@ -45,7 +45,6 @@ class NVDConnector(CVEConnector):
         for vul in file["result"]["CVE_Items"]:
             id_cve = vul["cve"]["CVE_data_meta"]["ID"]
 
-            # TODO: Prüfe ob es Vulnerabilität schon gibt
             # Generate Vulnerability objects and add them to the Library. Then set all attributes from the JSON
             vulnerabilities_technology[id_cve] = Vulnerability(id_cve, id_cve)
             try:
