@@ -1,9 +1,8 @@
 # imports
-from Application import Application
+from ERA_Framework_Generator.Application import Application
 import numpy as np
-from Process import Process
-from Technology import Technology
-from Vulnerability import Vulnerability
+from ERA_Framework_Generator.Process import Process
+from ERA_Framework_Generator.Technology import Technology
 
 
 class ERAScoreCalculator:

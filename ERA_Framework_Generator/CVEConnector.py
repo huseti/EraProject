@@ -1,7 +1,7 @@
 # imports
 import json
 import requests
-from Vulnerability import Vulnerability
+from ERA_Framework_Generator.Vulnerability import Vulnerability
 
 
 class CVEConnector:

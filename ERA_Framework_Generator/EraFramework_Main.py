@@ -3,19 +3,19 @@
 # ------- Date: 12.08.2020 ---------------
 
 # imports
-from Application import Application
-from CVEConnector import NVDConnector
+from ERA_Framework_Generator.Application import Application
+from ERA_Framework_Generator.CVEConnector import NVDConnector
 from datetime import datetime
-from ERAJsonParser import ERAJsonParser
-from ERAScoreCalculator import ERAScoreCalculator
-from ExcelParser import BskExcelParser
+from ERA_Framework_Generator.ERAJsonParser import ERAJsonParser
+from ERA_Framework_Generator.ERAScoreCalculator import ERAScoreCalculator
+from ERA_Framework_Generator.ExcelParser import BskExcelParser
 import os
-from Process import Process
-from Technology import Technology
+from ERA_Framework_Generator.Process import Process
+from ERA_Framework_Generator.Technology import Technology
 import timeit
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename,asksaveasfilename
-from Vulnerability import Vulnerability
+from ERA_Framework_Generator.Vulnerability import Vulnerability
 
 
 # Main Function to calculate an ERA Model by importing EA Data via Excel Upload and to save it to a JSON File

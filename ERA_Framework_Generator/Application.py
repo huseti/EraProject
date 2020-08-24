@@ -1,4 +1,4 @@
-from Asset import Asset
+from ERA_Framework_Generator.Asset import Asset
 
 
 class Application(Asset):

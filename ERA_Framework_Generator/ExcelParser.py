@@ -1,8 +1,8 @@
 # imports
-from Application import Application
+from ERA_Framework_Generator.Application import Application
 import pandas as pd
-from Process import Process
-from Technology import Technology
+from ERA_Framework_Generator.Process import Process
+from ERA_Framework_Generator.Technology import Technology
 
 
 class ExcelParser:

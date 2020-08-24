@@ -1,10 +1,6 @@
 # imports
-from Application import Application
 import json
 import os
-from Process import Process
-from Technology import Technology
-from Vulnerability import Vulnerability
 
 
 class ERAJsonParser:

@@ -1,14 +1,12 @@
 # imports
-from Process import Process
-from Application import Application
-from Technology import Technology
-from Vulnerability import Vulnerability
-from ERAScoreCalculator import ERAScoreCalculator
-from CVEConnector import NVDConnector
-from ExcelParser import BskExcelParser
-from ERAJsonParser import ERAJsonParser
+from ERA_Framework_Generator.Process import Process
+from ERA_Framework_Generator.Application import Application
+from ERA_Framework_Generator.Technology import Technology
+from ERA_Framework_Generator.Vulnerability import Vulnerability
+from ERA_Framework_Generator.ERAScoreCalculator import ERAScoreCalculator
+from ERA_Framework_Generator.ERAJsonParser import ERAJsonParser
 from tkinter import Tk
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter.filedialog import asksaveasfilename
 from datetime import datetime
 import os
 import timeit
