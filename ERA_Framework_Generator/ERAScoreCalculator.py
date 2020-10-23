@@ -62,24 +62,25 @@ class ERAScoreCalculator:
         # and ERA Score - start with the  technologies and loop afterwards over the "dependent on"-applications
         for tech in application.dependent_on_technologies.keys():
             calculated_era_score = self.technologies[tech].era_score * \
-                                   application.dependent_on_technologies[tech] * \
+                                   application.dependent_on_technologies[tech]['Impact Score'] * \
                                    self.MULTIPLIER[application.protection_requirements]
-            if self.technologies[tech].era_score * application.dependent_on_technologies[tech] > max_score:
+            if calculated_era_score > max_score:
                 max_score = calculated_era_score
                 max_asset_id = tech
                 max_asset_class = 'Technology'
-                max_impact_score = application.dependent_on_technologies[tech]
+                max_impact_score = application.dependent_on_technologies[tech]['Impact Score']
                 max_impacting_era_score = self.technologies[tech].era_score
 
         # Same logic with loop over the "dependent on"-applications
         for app in application.dependent_on_applications.keys():
-            calculated_era_score = self.applications[app].era_score * application.dependent_on_applications[app] * \
+            calculated_era_score = self.applications[app].era_score * \
+                                   application.dependent_on_applications[app]['Impact Score'] * \
                                    self.MULTIPLIER[application.protection_requirements]
             if calculated_era_score > max_score:
                 max_score = calculated_era_score
                 max_asset_id = app
                 max_asset_class = 'Application'
-                max_impact_score = application.dependent_on_applications[app]
+                max_impact_score = application.dependent_on_applications[app]['Impact Score']
                 max_impacting_era_score = self.applications[app].era_score
 
         # set the ERA Score and save the vulnerability that affected the era score (Maximum: 10.0)
@@ -109,12 +110,13 @@ class ERAScoreCalculator:
         # loop over applications per process and define the ERA score according to highest Product of impact score
         # and ERA Score multiplied with the "protection requirements" Mutliplier
         for app in process.dependent_on_applications.keys():
-            calculated_era_score = self.applications[app].era_score * process.dependent_on_applications[app] * \
+            calculated_era_score = self.applications[app].era_score * \
+                                   process.dependent_on_applications[app]['Impact Score'] * \
                                    self.MULTIPLIER[process.protection_requirements]
             if calculated_era_score > max_score:
                 max_score = calculated_era_score
                 max_asset_id = app
-                max_impact_score = process.dependent_on_applications[app]
+                max_impact_score = process.dependent_on_applications[app]['Impact Score']
                 max_impacting_era_score = self.applications[app].era_score
 
         # set the ERA Score and save the vulnerability that affected the era score (Maximum: 10.0)

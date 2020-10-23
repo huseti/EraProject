@@ -34,7 +34,10 @@ class NVDConnector(CVEConnector):
 
         # build the request
         request = self.HOST + vendor + ':' + product + ':' + version
-        response = requests.get(request)
+        try:
+            response = requests.get(request)
+        except:
+            print("No connection to the CVSS Database possible.")
         return response.json()
 
     def __parse_response_into_vulnerabilities(self, file: json) -> dict:

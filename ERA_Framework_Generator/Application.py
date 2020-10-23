@@ -19,8 +19,8 @@ class Application(Asset):
         self.availability_requirements = ''
         self.integrity_requirements = ''
         self.confidentiality_requirements = ''
-        self.dependent_on_technologies: dict[int, float] = {}  # save the Technology ID and the impact score
-        self.dependent_on_applications: dict[int, float] = {}  # save the Application ID and the impact score
+        self.dependent_on_technologies: dict[int, dict] = {}  # save the Technology ID and the impact score data
+        self.dependent_on_applications: dict[int, dict] = {}  # save the Application ID and the impact score data
 
     # Definition of Getters and Setters
     @property

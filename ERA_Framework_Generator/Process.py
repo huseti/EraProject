@@ -7,8 +7,7 @@ class Process(Asset):
     def __init__(self, id: str, name: str):
         super().__init__(id, name)
         self.responsible = ''
-        self.dependent_on_applications: dict[int, float] = {}   # save the Application ID and the impact score
-
+        self.dependent_on_applications: dict[int, dict] = {}   # save the Application ID and the impact score data
 
     # Definition of Getters and Setters
     @property

@@ -124,9 +124,18 @@ class BskExcelParser(ExcelParser):
     def __generate_dependencies_process_application(self, row):
         # only append the dependency to the process object, if it does not exist yet
         if not row['Xeam_ID'] in self.processes[row['Prozess_ID']].dependent_on_applications.keys():
-            # assign the application id to the dependency list of the process object with the impact score as the value
-            self.processes[row['Prozess_ID']].dependent_on_applications[row['Xeam_ID']] = \
-                row['Impact Score Applikation zu Prozess']
+            # build the dictionary with relevant information about the impact score
+            dict_impact_score = {'Impact Score': row['Impact Score Applikation zu Prozess'], 'Rater':
+                row['Bewerter Impact Score'], 'Criticality': row['Criticality'], 'Non-substitutability':
+                                     row['Non-substitutability'], 'Indegree Centrality': row['Indegree Centrality'],
+                                 'Outdegree Centrality':
+                                     row['Outdegree Centrality'],
+                                 'Impact on availability': row['Impact on availability'],
+                                 'Impact on confidentiality': row['Impact on confidentiality'], 'Impact on integrity':
+                                     row['Impact on integrity']}
+
+            # assign the application id to the dependency list of the process object with the impact score data as dict
+            self.processes[row['Prozess_ID']].dependent_on_applications[row['Xeam_ID']] = dict_impact_score
 
     def __generate_technology(self, row):
         # only append the technology object, if a object with this id does not exist
@@ -140,17 +149,32 @@ class BskExcelParser(ExcelParser):
     def __generate_dependencies_application_technology(self, row):
         # only append the dependency to the application object, if it does not exist yet
         if not row['Technologie_ID'] in self.applications[row['Xeam_ID']].dependent_on_technologies.keys():
-            # assign the technology id to the dependency list of the appl. object with the impact score as the value
-            self.applications[row['Xeam_ID']].dependent_on_technologies[row['Technologie_ID']] = \
-                row['Impact Score Technologie zu Applikation']
+            # build the dictionary with relevant information about the impact score
+            dict_impact_score = {'Impact Score': row['Impact Score Technologie zu Applikation'], 'Rater':
+                row['Bewerter Impact Score'], 'Criticality': row['Criticality'], 'Non-substitutability':
+                row['Non-substitutability'], 'Indegree Centrality': row['Indegree Centrality'],'Outdegree Centrality':
+                row['Outdegree Centrality'], 'Impact on availability': row['Impact on availability'],
+                'Impact on confidentiality': row['Impact on confidentiality'], 'Impact on integrity':
+                row['Impact on integrity']}
+
+            # assign the technology id to the dependency list of the appl. object with relevant impact score values
+            self.applications[row['Xeam_ID']].dependent_on_technologies[row['Technologie_ID']] = dict_impact_score
 
     def __generate_dependencies_application_application(self, row):
         # only append the dependency to the application object, if it does not exist yet
         # dependencies to applications that don't exist in our concept are ignored
         if row['QUELLE_ID'] in self.applications.keys() and row['ZIEL_ID'] in self.applications.keys():
-            # assign the application id to the dependency list of the appl. object with the impact score as the value
-            self.applications[row['ZIEL_ID']].dependent_on_applications[row['QUELLE_ID']] = \
-                row['Impact Score Quelle Ziel']
+
+            # build the dictionary with relevant information about the impact score
+            dict_impact_score = {'Impact Score': row['Impact Score Quelle Ziel'], 'Rater':
+                row['Bewerter Impact Score'], 'Criticality': row['Criticality'], 'Non-substitutability':
+                row['Non-substitutability'], 'Indegree Centrality': row['Indegree Centrality'], 'Outdegree Centrality':
+                row['Outdegree Centrality'], 'Impact on availability': row['Impact on availability'],
+                'Impact on confidentiality': row['Impact on confidentiality'], 'Impact on integrity':
+                row['Impact on integrity']}
+
+            # assign the application id to the dependency list of the appl. object with the impact score data as dict
+            self.applications[row['ZIEL_ID']].dependent_on_applications[row['QUELLE_ID']] = dict_impact_score
 
     @property
     def processes(self) -> dict:

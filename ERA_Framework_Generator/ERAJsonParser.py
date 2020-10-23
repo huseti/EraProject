@@ -223,9 +223,17 @@ class ERAJsonParser:
                 self.json_file['Edges'].append({
                     'source': str(tech.id),
                     'target': vul_id,
-                    'impact_score': 1.0,
                     'source_class': 'Technology',
-                    'target_class': 'Vulnerability'
+                    'target_class': 'Vulnerability',
+                    'impact_score': 1.0,
+                    'rater': 'Computer generated',
+                    'criticality': 1.0,
+                    'non-substitutability': 1.0,
+                    'indegree centrality': 1.0,
+                    'outdegree centrality': 1.0,
+                    'impact on availability': 1.0,
+                    'impact on confidentiality': 1.0,
+                    'impact on integrity': 1.0
                 })
         # load all dependencies from technologies to applications incl. impact score
         for app in self.applications.values():
@@ -233,18 +241,34 @@ class ERAJsonParser:
                 self.json_file['Edges'].append({
                     'source': str(app.id),
                     'target': str(tech),
-                    'impact_score': app.dependent_on_technologies[tech],
                     'source_class': 'Application',
-                    'target_class': 'Technology'
+                    'target_class': 'Technology',
+                    'impact_score': app.dependent_on_technologies[tech]['Impact Score'],
+                    'rater': app.dependent_on_technologies[tech]['Rater'],
+                    'criticality': app.dependent_on_technologies[tech]['Criticality'],
+                    'non-substitutability': app.dependent_on_technologies[tech]['Non-substitutability'],
+                    'indegree centrality': app.dependent_on_technologies[tech]['Indegree Centrality'],
+                    'outdegree centrality': app.dependent_on_technologies[tech]['Outdegree Centrality'],
+                    'impact on availability': app.dependent_on_technologies[tech]['Impact on availability'],
+                    'impact on confidentiality': app.dependent_on_technologies[tech]['Impact on confidentiality'],
+                    'impact on integrity': app.dependent_on_technologies[tech]['Impact on integrity']
                 })
         # load all dependencies from applications to applications incl. impact score
             for app_id in app.dependent_on_applications.keys():
                 self.json_file['Edges'].append({
                     'source': str(app.id),
                     'target': str(app_id),
-                    'impact_score': app.dependent_on_applications[app_id],
                     'source_class': 'Application',
-                    'target_class': 'Application'
+                    'target_class': 'Application',
+                    'impact_score': app.dependent_on_applications[app_id]['Impact Score'],
+                    'rater': app.dependent_on_applications[app_id]['Rater'],
+                    'criticality': app.dependent_on_applications[app_id]['Criticality'],
+                    'non-substitutability': app.dependent_on_applications[app_id]['Non-substitutability'],
+                    'indegree centrality': app.dependent_on_applications[app_id]['Indegree Centrality'],
+                    'outdegree centrality': app.dependent_on_applications[app_id]['Outdegree Centrality'],
+                    'impact on availability': app.dependent_on_applications[app_id]['Impact on availability'],
+                    'impact on confidentiality': app.dependent_on_applications[app_id]['Impact on confidentiality'],
+                    'impact on integrity': app.dependent_on_applications[app_id]['Impact on integrity']
                 })
 
         # load all dependencies from applications to processes incl. impact score
@@ -253,9 +277,17 @@ class ERAJsonParser:
                 self.json_file['Edges'].append({
                     'source': str(process.id),
                     'target': str(app),
-                    'impact_score': process.dependent_on_applications[app],
                     'source_class': 'Process',
-                    'target_class': 'Application'
+                    'target_class': 'Application',
+                    'impact_score': process.dependent_on_applications[app]['Impact Score'],
+                    'rater': process.dependent_on_applications[app]['Rater'],
+                    'criticality': process.dependent_on_applications[app]['Criticality'],
+                    'non-substitutability': process.dependent_on_applications[app]['Non-substitutability'],
+                    'indegree centrality': process.dependent_on_applications[app]['Indegree Centrality'],
+                    'outdegree centrality': process.dependent_on_applications[app]['Outdegree Centrality'],
+                    'impact on availability': process.dependent_on_applications[app]['Impact on availability'],
+                    'impact on confidentiality': process.dependent_on_applications[app]['Impact on confidentiality'],
+                    'impact on integrity': process.dependent_on_applications[app]['Impact on integrity']
                 })
 
     def __save_json_file(self, filepath: str, filename:str):

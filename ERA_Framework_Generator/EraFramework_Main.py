@@ -41,7 +41,6 @@ def main():
 
     # get the dictionary with all vulnerabilites objects from the CVE API
     vulnerabilities: dict[str, Vulnerability] = NVDConnector().get_all_vulnerabilities_per_technology(technologies)
-
     # calculate the ERA Scores for each Asset and calculate the total number of affecting vulnerabilities per layer
     era_score_calculator = ERAScoreCalculator(processes, applications, technologies, vulnerabilities)
     era_score_calculator.calculate_era_scores()
