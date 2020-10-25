@@ -5,6 +5,14 @@ This is a local CSS File to design the Dash app typography
 body {
     font-family: sans-serif;
 }
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5 {
     color: #4d58ff
+}
+#Upload_Link {
+    text-decoration: underline;
+    color: #4d58ff
+}
+
+#table_legend {
+    font-size: xx-small;
 }
