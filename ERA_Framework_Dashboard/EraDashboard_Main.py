@@ -7,35 +7,35 @@
 # Run this app with `python EraDashboard_Main.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
-# TODO: Upload Dialog for JSON File
 
 # Imports
 import dash
 import dash_bootstrap_components as dbc
-import ERA_Framework_Dashboard.View_ERA as view_era
-import ERA_Framework_Dashboard.Controller_ERA as controller_era
+import ERA_Framework_Dashboard.ViewERA as viewEra
+import ERA_Framework_Dashboard.ControllerERA as controllerEra
+import ERA_Framework_Dashboard.ModelERA as modelERA
 
 
 # Main method to create the Dash application
 def main():
-    # TODO: Remove this
-    #Tk().withdraw()
-    #era_json_path: str = askopenfilename(
-    #    title="Please select an JSON File that contains your ERA model",
-    #    filetypes=[("JSON files", "*.json")])
-    era_json_path = r'C:/Users/thuse/Google Drive/Dokumente/Beruf/FU/4. Semester/Quellen/EAM Datensatz/Bearbeitet/ERA_Model_2020_10_24.json'
 
     # Create the Dash app object
-    # Implement Dash Bootstrap (local CSS files are integrated as well from /assets-folder)
+    # integrate Bootstrap Stylesheet local / CSS files are integrated as well from /assets-folder
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
     app.title = 'ERA Framework'
 
-    # Create the app layout
-    app.layout = view_era.create_main_layout(title="EAM Risk Assessment Framework", era_model_path=era_json_path)
-    # Connect the callbacks of controller Class
-    controller_era.register_callbacks(app)
+    # Create the Model Object
+    model = modelERA.ModelERA()
 
-    # Start the local server
+    # Create the View Object and generate the Main Layout
+    view = viewEra.ViewEra(title="EAM Risk Assessment Framework", era_model=model)
+    app.layout = view.create_main_layout()
+
+    # Connect the Controller and register the callbacks for View
+    controller = controllerEra.ControllerERA(dash_app=app, era_model=model)
+    controller.register_callbacks()
+
+    # Run the local server
     app.run_server(debug=True)
 
 

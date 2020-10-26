@@ -87,14 +87,19 @@ def get_style_pre():
 
 def get_style_upload():
     style = {
-        'width': '100%',
+        'width': '95%',
         'height': '60px',
         'lineHeight': '60px',
         'borderWidth': '1px',
         'borderStyle': 'dashed',
         'borderRadius': '5px',
         'textAlign': 'center',
-        'margin': '10px'
+        'margin-top': '10px',
+        'margin-left': '20px',
+        'margin-right': '20px',
+        'margin-bottom': '50px',
+        'color': '#bdc8c9',
+        'border-color': '#bdc8c9'
     }
     return style
 
