@@ -88,7 +88,7 @@ class ViewEra:
             html.Hr(className="my-2"),
             html.Div(id='table-tapNodeData-json')
         ],
-            style={'width': '100%', 'height': '250px', 'paddingBottom': '5%', 'paddingTop': '7%',
+            style={'width': '100%', 'height': '300px', 'paddingBottom': '5%', 'paddingTop': '7%',
                    'paddingRight': '5%', 'paddingLeft': '10%', 'margin-bottom': '30px', 'overflow-y': 'scroll'})
         return layout
 

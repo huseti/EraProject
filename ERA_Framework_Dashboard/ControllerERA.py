@@ -7,11 +7,9 @@
 import dash
 from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
-import json
 import ERA_Framework_Dashboard.ModelERA as modelERA
 import pandas as pd
 import dash_html_components as html
-import dash_cytoscape as cyto
 import ERA_Framework_Dashboard.assets.Stylesheets as styleERA
 
 
@@ -50,21 +48,15 @@ class ControllerERA:
         # Callback for Uploading JSON File
         @self.app.callback(Output('cytoscape-era-model', 'elements'),
                       [Input('upload-data', 'contents')],
-                      [State('upload-data', 'filename'),
-                       State('upload-data', 'last_modified')])
-        def update_output(list_of_contents, list_of_names, list_of_dates):
+                      [State('upload-data', 'filename')])
+        def update_output(list_of_contents, list_of_names):
             if list_of_contents is not None:
-                # TODO: Upload Dialog for JSON File
-                #Check if file is JSOn
-                #print("list of contents: " + list_of_contents)
-                #print("list of names: " + list_of_names)
-                #print("list of dates: " + list_of_dates)
 
-                self.era_model.era_json_path = r'C:/Users/thuse/Google Drive/Dokumente/Beruf/FU/4. Semester/Quellen/EAM Datensatz/' \
-                             r'Bearbeitet/ERA_Model_2020_10_22.json'
+                self.era_model.parse_contents_to_json(list_of_contents, list_of_names)
                 return self.era_model.transform_json_to_cyto()
             else:
                 return self.era_model.transform_json_to_cyto()
+
 
         # TODO: Learn more Button
 
@@ -156,6 +148,7 @@ class ControllerERA:
                         data['vulnerability_obtain_other_privilege']
                     ]
                 })
+            df_general["Key"][1] = "CVSS Score"
             return pd.concat([df_general, df_vulnerability])
 
         else:
@@ -176,3 +169,6 @@ class ControllerERA:
             }
         )
         return df
+
+
+

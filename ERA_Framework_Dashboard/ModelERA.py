@@ -5,6 +5,8 @@
 
 # imports
 import json
+import base64
+import io
 
 
 class ModelERA:
@@ -13,10 +15,7 @@ class ModelERA:
     # Constructor
     def __init__(self):
         # Files/ Filepath
-        self.era_json_file = []
-        self.era_json_path = r'C:/Users/thuse/Google Drive/Dokumente/Beruf/FU/4. Semester/Quellen/EAM Datensatz/' \
-                             r'Bearbeitet/ERA_Model_2020_10_24.json'
-        self.filepath_updated = True
+        self.era_json_file = {}
         self.era_cyto_graph = []
         # Model Information
         self.average_era_score_assets = 0.0
@@ -24,15 +23,6 @@ class ModelERA:
         self.amount_nodes = 0
 
     # Definition of Getters and Setters
-    @property
-    def era_json_path(self) -> str:
-        return self._era_json_path
-
-    @era_json_path.setter
-    def era_json_path(self, era_json_path: str):
-        self.filepath_updated = True
-        self._era_json_path = era_json_path
-
 
     @property
     def era_json_file(self) -> json:
@@ -50,21 +40,24 @@ class ModelERA:
     def era_cyto_graph(self, era_cyto_graph: list):
         self._era_cyto_graph = era_cyto_graph
 
-    # Load JSON File
-    def __load_json(self):
-        if self.era_json_path == '':
-            self.filepath_updated = False
-        else:
-            with open(self.era_json_path) as file:
-                self.era_json_file = json.load(file)
-                self.filepath_updated = False
+    # Parse content to JSON Format
+    def parse_contents_to_json(self, contents, filename):
+        content_type, content_string = contents.split(',')
+        decoded = base64.b64decode(content_string)
+        try:
+            if 'json' in filename:
+                io_file = io.StringIO(decoded.decode('utf-8'))
+                self.era_json_file = json.load(io_file)
+
+            else:
+                print("File is not JSON Format")
+        except Exception as e:
+            print(e)
 
     # Transform ERA JSON model to cytoscape graph format
     def transform_json_to_cyto(self) -> list:
-        # Check if Filepath was updated
-        if self.filepath_updated:
-            # Load the JSON File
-            self.__load_json()
+        # Check JSON File is not initial
+        if self._era_json_file != {}:
 
             # Initialize model info
             self.total_vulnerabilities = 0
