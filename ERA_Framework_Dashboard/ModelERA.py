@@ -11,12 +11,12 @@ import io
 
 class ModelERA:
 
-    # TODO: Remove json path and change to ''
     # Constructor
     def __init__(self):
         # Files/ Filepath
         self.era_json_file = {}
         self.era_cyto_graph = []
+        self.filename = ''
         # Model Information
         self.average_era_score_assets = 0.0
         self.total_vulnerabilities = 0
@@ -48,7 +48,7 @@ class ModelERA:
             if 'json' in filename:
                 io_file = io.StringIO(decoded.decode('utf-8'))
                 self.era_json_file = json.load(io_file)
-
+                self.filename = filename
             else:
                 print("File is not JSON Format")
         except Exception as e:
@@ -163,3 +163,16 @@ class ModelERA:
             self.average_era_score_assets = self.average_era_score_assets / self.amount_nodes
 
         return self.era_cyto_graph
+
+    # Filter the complete cytoscape graph for search terms of form and return the filtered graph
+    def filter_cyto(self, score_range, class_range, search_term) -> list:
+        # initial filtered cytograph
+        filtered_cyto = []
+        # TODO: Prüfen, ob der initiale Cyto befüllt ist
+        # TODO: Falls Suchterm leer -> ERA Score/ Class Range
+        # TODO:     Einschränkung der Kanten nach Knoten
+        # TODO: Falls Suchterm voll -> Suche nach Term -> Filter auf ERA Score/ Range
+        # return filtered_cyto
+        # TODO: Remove
+        return self.era_cyto_graph
+

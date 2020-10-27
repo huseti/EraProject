@@ -56,7 +56,7 @@ def get_stylesheet_cyto() -> list:
         {
             'selector': '[era_score < 7.0]',
             'style': {
-                'background-color': 'yellow'
+                'background-color': 'orange'
             }
         },
         {

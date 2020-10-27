@@ -26,6 +26,23 @@ class ViewEra:
             # Jumbotron Title and Information
             self.__create_jumbotron(),
 
+            # Modal Element
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("EAM Risk Assessment Framework (ERA)"),
+                    dbc.ModalBody("The ERA framework is an assessment framework that provides a comprehensive view of "
+                                  "existing IT security risks across the entire enterprise architecture of companies on"
+                                  " a technological level applying EAM. The framework is intended to identify and asses"
+                                  "s the technological threats according to the protection goals of the company."
+                                  "For further information contact Mr. Tim Huse via tim.huse@fu-berlin.de"),
+                    dbc.ModalFooter(
+                        dbc.Button("Close", id="close", color='danger', className="ml-auto")
+                    ),
+                ],
+                id="modal-info",
+                size="xl",
+            ),
+
             # Upload Component
             dcc.Upload(
                 id='upload-data',
@@ -59,16 +76,23 @@ class ViewEra:
 
     # Load Cytoscape Graph for Dashboard
     def __create_cyto_graph(self):
-        graph = cyto.Cytoscape(
-            id='cytoscape-era-model',
-            stylesheet=styleERA.get_stylesheet_cyto(),
-            style={'width': '100%', 'height': '700px'},
-            layout={
-                'name': 'breadthfirst',
-                'roots': '[class = "Process"]'
-            },
-            elements=self.era_model.transform_json_to_cyto()
-        )
+        graph = html.Div(
+            [
+                cyto.Cytoscape(
+                    id='cytoscape-era-model',
+                    stylesheet=styleERA.get_stylesheet_cyto(),
+                    zoomingEnabled=True,
+                    minZoom=0.5,
+                    style={'width': '100%', 'height': '700px'},
+                    layout={
+                        'name': 'breadthfirst',
+                        'roots': '[class = "Process"]'
+                    },
+                    elements=[]
+                ),
+
+            ],
+            id='graph-div')
         return graph
 
 
@@ -116,7 +140,9 @@ class ViewEra:
                 ],
                 horizontal=True,
                 className="mb-2",
+                id='table-info-bar',
             ),
+            html.Div(id='filepath')
         ],
             style={'width': '100%', 'height': '150px', 'paddingBottom': '5%', 'paddingTop': '7%',
                    'paddingRight': '5%', 'paddingLeft': '10%'})
@@ -135,8 +161,7 @@ class ViewEra:
         search_input = dbc.FormGroup(
             [
                 dbc.Label("Asset Search", html_for="search-element", style={'margin-top': '20px'}),
-                dbc.Input(type="search", id="search-element", placeholder="Enter asset ID ..."),
-                dbc.Button("Search", color="primary", size="sm", style={'margin-top': '10px'}),
+                dbc.Input(type="search", id="search-element", placeholder="Enter asset name ..."),
             ],
             className="mr-3",
         )
@@ -186,10 +211,16 @@ class ViewEra:
                 ),
             ]
         )
+        buttons = html.Div([
+            dbc.Button("Submit", id="submit_button", color="primary", size="sm",
+                       style={'margin-top': '10px', 'margin-right': '60px'}),
+            html.A(dbc.Button("Reset all", id="reset_button", color="danger", size="sm",
+                       style={'margin-top': '10px'}), href='/'),
 
-        reset_button = dbc.Button("Reset all", id="reset_button", color="danger", size="sm", style={'margin-top': '10px'})
 
-        form = dbc.Form([search_input, score_range_slider, class_range_slider, reset_button])
+        ])
+
+        form = dbc.Form([score_range_slider, class_range_slider, search_input, buttons])
 
         layout = html.Div([
             html.H6('Options'),
@@ -204,7 +235,7 @@ class ViewEra:
     def __create_legend(self):
         df = pd.DataFrame(
             {
-                "Element": ["X -> Y", "Green asset", "Yellow asset", "Red asset", "Rectangle", "Triangle", "Circle",
+                "Element": ["X -> Y", "Green asset", "Orange asset", "Red asset", "Rectangle", "Triangle", "Circle",
                             "Vee"],
                 "Description": ["X is dependent on Y", "ERA Score 0.0 - 3.9", "ERA Score 4.0 - 6.9",
                                 "ERA Score 7.0 - 10.0",
@@ -237,7 +268,7 @@ class ViewEra:
                     "EAM risk assessment (ERA) is a framework developed by Dr. Daniel Fuerstenau, Dr. Carson Woo"
                     " and Tim Huse"
                 ),
-                html.P(dbc.Button("Learn more", color="primary"), className="lead"),
+                html.P(dbc.Button("Learn more", color="primary", id="open"), className="lead"),
             ]
         )
         return layout

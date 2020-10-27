@@ -32,7 +32,7 @@ def main():
     app.layout = view.create_main_layout()
 
     # Connect the Controller and register the callbacks for View
-    controller = controllerEra.ControllerERA(dash_app=app, era_model=model)
+    controller = controllerEra.ControllerERA(dash_app=app, era_model=model, era_view=view)
     controller.register_callbacks()
 
     # Run the local server

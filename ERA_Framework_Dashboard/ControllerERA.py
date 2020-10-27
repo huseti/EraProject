@@ -10,15 +10,18 @@ import dash_bootstrap_components as dbc
 import ERA_Framework_Dashboard.ModelERA as modelERA
 import pandas as pd
 import dash_html_components as html
+import ERA_Framework_Dashboard.ViewERA as viewERA
 import ERA_Framework_Dashboard.assets.Stylesheets as styleERA
+import dash_cytoscape as cyto
 
 
 class ControllerERA:
 
     # Constructor
-    def __init__(self, dash_app: dash.Dash, era_model: modelERA):
+    def __init__(self, dash_app: dash.Dash, era_model: modelERA, era_view: viewERA):
         self.app = dash_app
         self.era_model = era_model
+        self.era_view = era_view
 
     # Connecting all callbacks to the Dash application
     def register_callbacks(self):
@@ -46,19 +49,55 @@ class ControllerERA:
                 return html.P('Please tap on an Edge to get detailed information')
 
         # Callback for Uploading JSON File
-        @self.app.callback(Output('cytoscape-era-model', 'elements'),
-                      [Input('upload-data', 'contents')],
-                      [State('upload-data', 'filename')])
+        @self.app.callback(
+            [Output('graph-div', 'children'),
+             Output('table-info-bar', 'children'),
+             Output('filepath', 'children')],
+            [Input('upload-data', 'contents')],
+            [State('upload-data', 'filename')])
         def update_output(list_of_contents, list_of_names):
+
             if list_of_contents is not None:
-
                 self.era_model.parse_contents_to_json(list_of_contents, list_of_names)
-                return self.era_model.transform_json_to_cyto()
-            else:
-                return self.era_model.transform_json_to_cyto()
 
+            info_bar = [dbc.ListGroupItem(str(self.era_model.total_vulnerabilities) + "\nVulnerabil."),
+                        dbc.ListGroupItem('{0:.3g}'.format(self.era_model.average_era_score_assets) + "\nAvg. Score"),
+                        dbc.ListGroupItem(str(self.era_model.amount_nodes) + "\nAssets")]
 
-        # TODO: Learn more Button
+            cyto_graph = cyto.Cytoscape(
+                id='cytoscape-era-model',
+                stylesheet=styleERA.get_stylesheet_cyto(),
+                zoomingEnabled=True,
+                minZoom=0.5,
+                style={'width': '100%', 'height': '700px'},
+                layout={
+                    'name': 'breadthfirst',
+                    'roots': '[class = "Process"]'
+                },
+                elements=self.era_model.transform_json_to_cyto()
+            )
+
+            return cyto_graph, info_bar, html.P('Current ERA file: ' + self.era_model.filename, style={'color':'secondary'})
+
+        # Callback for open the Modal with more information about the ERA framework
+        @self.app.callback(
+            Output("modal-info", "is_open"),
+            [Input("open", "n_clicks"), Input("close", "n_clicks")],
+            [State("modal-info", "is_open")])
+        def toggle_modal(n1, n2, is_open):
+            if n1 or n2:
+                return not is_open
+            return is_open
+
+        # Form callbacks to filter the Graph
+        @self.app.callback(
+            Output('cytoscape-era-model', 'elements'),
+            [Input('submit_button', 'n_clicks')],
+            [State('score-range-slider', 'value'),
+             State('class-range-slider', 'value'),
+             State('search-element', 'value')])
+        def update_output(n_clicks_submit, value_score_slider, value_class_slider, value_search_element):
+            return self.era_model.filter_cyto(value_score_slider, value_class_slider, value_search_element)
 
         # TODO: Form Callbacks
 
