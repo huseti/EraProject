@@ -15,14 +15,14 @@ import ERA_Framework_Dashboard.ViewERA as viewEra
 import ERA_Framework_Dashboard.ControllerERA as controllerEra
 import ERA_Framework_Dashboard.ModelERA as modelERA
 
+# Create the Dash app object
+# integrate Bootstrap Stylesheet local / CSS files are integrated as well from /assets-folder
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
+app.title = 'ERA Framework'
+
 
 # Main method to create the Dash application
 def main():
-
-    # Create the Dash app object
-    # integrate Bootstrap Stylesheet local / CSS files are integrated as well from /assets-folder
-    app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
-    app.title = 'ERA Framework'
 
     # Create the Model Object
     model = modelERA.ModelERA()
