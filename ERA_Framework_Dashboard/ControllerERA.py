@@ -91,15 +91,34 @@ class ControllerERA:
 
         # Form callbacks to filter the Graph
         @self.app.callback(
-            Output('cytoscape-era-model', 'elements'),
+            [Output('cytoscape-era-model', 'elements'),
+             Output('cytoscape-era-model', 'layout')],
             [Input('submit_button', 'n_clicks')],
             [State('score-range-slider', 'value'),
              State('class-range-slider', 'value'),
              State('search-element', 'value')])
-        def update_output(n_clicks_submit, value_score_slider, value_class_slider, value_search_element):
-            return self.era_model.filter_cyto(value_score_slider, value_class_slider, value_search_element)
+        def filter_output_update_graph_layout(n_clicks_submit, value_score_slider, value_class_slider,
+                                              value_search_element):
+            # Filter the Graph with input filter criteria
+            filtered_graph = self.era_model.filter_cyto(value_score_slider, value_class_slider, value_search_element)
 
-        # TODO: Form Callbacks
+            # Update the graph layout
+            layout_update = {}
+            # If a search term is entered, Score Range Slider is not initial or only vulnerabilities are shown
+            # switch to random layout
+            if value_search_element or value_score_slider != [0, 10] or value_class_slider[0] == 3:
+                layout_update = {'name': 'random'}
+            # If processes are the lowest class show tree with process as root
+            elif value_class_slider[0] == 0:
+                layout_update = {'name': 'breadthfirst', 'roots': '[class = "Process"]'}
+            # If applications are the lowest class show tree with applications as root
+            elif value_class_slider[0] == 1:
+                layout_update = {'name': 'breadthfirst', 'roots': '[class = "Application"]'}
+            # If technologies are the lowest class show tree with technologies as root
+            elif value_class_slider[0] == 2:
+                layout_update = {'name': 'breadthfirst', 'roots': '[class = "Technology"]'}
+
+            return filtered_graph, layout_update
 
     # Generate the table details for a node
     def __generate_table_details_node(self, data):
