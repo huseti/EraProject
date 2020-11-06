@@ -21,24 +21,20 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
 app.title = 'ERA Framework'
 
 
-# Main method to create the Dash application
-def main():
 
-    # Create the Model Object
-    model = modelERA.ModelERA()
+# Create the Model Object
+model = modelERA.ModelERA()
 
-    # Create the View Object and generate the Main Layout
-    view = viewEra.ViewEra(title="EAM Risk Assessment Framework", era_model=model)
-    app.layout = view.create_main_layout()
+# Create the View Object and generate the Main Layout
+view = viewEra.ViewEra(title="EAM Risk Assessment Framework", era_model=model)
+app.layout = view.create_main_layout()
 
-    # Connect the Controller and register the callbacks for View
-    controller = controllerEra.ControllerERA(dash_app=app, era_model=model, era_view=view)
-    controller.register_callbacks()
-
-    # Run the local server
-    app.run_server(debug=True)
+# Connect the Controller and register the callbacks for View
+controller = controllerEra.ControllerERA(dash_app=app, era_model=model, era_view=view)
+controller.register_callbacks()
 
 
 # Start the Dash application on local server
 if __name__ == '__main__':
-    main()
+    # Run the local server
+    app.run_server(debug=True)

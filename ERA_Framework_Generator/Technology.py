@@ -5,7 +5,7 @@ class Technology(Asset):
 
     # Constructor
     def __init__(self, id: int, vendor: str, product: str, version: str):
-        super().__init__(id, vendor + ' ' + product)
+        super().__init__(id, str(vendor) + ' ' + str(product))
         self.protection_requirements = 'Standard'
         self.vendor = vendor
         self.product = product
