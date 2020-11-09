@@ -33,9 +33,14 @@ class ControllerERA:
             if data:
                 return dbc.Table.from_dataframe(self.__generate_table_details_node(data),
                                                 id='table_infonode', striped=True, bordered=True, hover=True,
-                                                size='sm', style={'margin-top': '20px', 'margin-right': '10px'})
+                                                size='sm', style={'margin-top': '10px', 'margin-right': '10px',
+                                                                  'background-color': 'white'})
             else:
-                return html.P('Please tap on a Node to get detailed information')
+                return html.P('Please tap on a Node to get detailed information', className="text-muted",
+                              style={
+                                  'textAlign': 'center',
+                                  'margin-top': '20px'
+                              })
 
         # Callback for Clicking on Edge
         @self.app.callback(Output('table-tapEdgeData-json', 'children'),
@@ -44,32 +49,45 @@ class ControllerERA:
             if data:
                 return dbc.Table.from_dataframe(self.__generate_table_details_edge(data),
                                                 id='table_infonode', striped=True, bordered=True, hover=True,
-                                                size='sm', style={'margin-top': '20px', 'margin-right': '10px'})
+                                                size='sm', style={'margin-top': '10px', 'margin-right': '10px',
+                                                                  'background-color': 'white'})
             else:
-                return html.P('Please tap on an Edge to get detailed information')
+                return html.P('Please tap on an Edge to get detailed information', className="text-muted",
+                              style={
+                                  'textAlign': 'center',
+                                  'margin-top': '20px'
+                              })
 
-        # Callback for Uploading JSON File
+        # Callback for Uploading JSON File and Updating the cyto graph and info bar
         @self.app.callback(
             [Output('graph-div', 'children'),
-             Output('table-info-bar', 'children'),
-             Output('filepath', 'children')],
+             Output('table-info-bar', 'children')],
             [Input('upload-data', 'contents')],
             [State('upload-data', 'filename')])
         def update_output(list_of_contents, list_of_names):
 
             if list_of_contents is not None:
                 self.era_model.parse_contents_to_json(list_of_contents, list_of_names)
-
-            info_bar = [dbc.ListGroupItem(str(self.era_model.total_vulnerabilities) + "\nVulnerabil."),
-                        dbc.ListGroupItem('{0:.3g}'.format(self.era_model.average_era_score_assets) + "\nAvg. Score"),
-                        dbc.ListGroupItem(str(self.era_model.amount_nodes) + "\nAssets")]
+            else:
+                return html.P("Upload ERA data above to see a graph model of your data here", className="text-muted",
+                              style={
+                                  'textAlign': 'center',
+                                  'margin-top': '240px',
+                                  'paddingBottom': '240px'
+                              }), \
+                       html.P("Upload ERA data above to see information here", className="text-muted",
+                              style={
+                                  'textAlign': 'center',
+                                  'margin-top': '20px'
+                              })
 
             cyto_graph = cyto.Cytoscape(
                 id='cytoscape-era-model',
                 stylesheet=styleERA.get_stylesheet_cyto(),
                 zoomingEnabled=True,
-                minZoom=0.5,
-                style={'width': '100%', 'height': '700px'},
+                minZoom=0.4,
+                maxZoom=2.5,
+                style={'width': '100%', 'height': '500px'},
                 layout={
                     'name': 'breadthfirst',
                     'roots': '[class = "Process"]'
@@ -77,7 +95,10 @@ class ControllerERA:
                 elements=self.era_model.transform_json_to_cyto()
             )
 
-            return cyto_graph, info_bar, html.P('Current ERA file: ' + self.era_model.filename, style={'color':'secondary'})
+            # Generate the infobar
+            info_bar = self.__generate_infobar()
+
+            return cyto_graph, info_bar
 
         # Callback for open the Modal with more information about the ERA framework
         @self.app.callback(
@@ -86,6 +107,17 @@ class ControllerERA:
             [State("modal-info", "is_open")])
         def toggle_modal(n1, n2, is_open):
             if n1 or n2:
+                return not is_open
+            return is_open
+
+        # Callback for open the legend bout the ERA framework graph components
+        @self.app.callback(
+            Output("collapse-legend", "is_open"),
+            [Input("collapse-button-legend", "n_clicks")],
+            [State("collapse-legend", "is_open")],
+        )
+        def toggle_collapse(n, is_open):
+            if n:
                 return not is_open
             return is_open
 
@@ -184,6 +216,7 @@ class ControllerERA:
                         data['technology_version']
                     ]
                 })
+            df_general["Value"][0] = data['technology_vendor'] + ' ' + data['technology_product']
             return pd.concat([df_general, df_technology])
 
         # Merge the data frame with vulnerability data
@@ -207,6 +240,7 @@ class ControllerERA:
                     ]
                 })
             df_general["Key"][1] = "CVSS Score"
+            df_general["Value"][0] = data['id']
             return pd.concat([df_general, df_vulnerability])
 
         else:
@@ -228,5 +262,89 @@ class ControllerERA:
         )
         return df
 
+    # Generate the Cards for the infobar
+    def __generate_infobar(self):
+
+        card_content_score = [
+            dbc.CardBody(
+                [
+                    html.H5('{0:.3g}'.format(self.era_model.average_era_score_assets), className="card-title"),
+                    html.P(
+                        "Ø ERA Score",
+                        className="card-text",
+                    ),
+                ]
+            ),
+        ]
+
+        # Determine the color of the Card depending on the era score
+        if self.era_model.average_era_score_assets >= 7.0:
+            color_card_score = "danger"
+        elif self.era_model.average_era_score_assets < 4.0:
+            color_card_score = "success"
+        else:
+            color_card_score = "warning"
+
+        card_content_vul = [
+            dbc.CardBody(
+                [
+                    html.H5(str(self.era_model.total_vulnerabilities), className="card-title"),
+                    html.P(
+                        "Vulnerabilities",
+                        className="card-text",
+                    ),
+                ]
+            ),
+        ]
+
+        # Determine the color of the Card depending on the amount of vulnerabilities
+        if self.era_model.total_vulnerabilities >= 100:
+            color_card_vul = "danger"
+        elif self.era_model.total_vulnerabilities < 25:
+            color_card_vul = "success"
+        else:
+            color_card_vul = "warning"
+
+
+        card_content_assets = [
+            dbc.CardBody(
+                [
+                    html.H5(str(self.era_model.amount_nodes), className="card-title"),
+                    html.P(
+                        "Assets",
+                        className="card-text",
+                    ),
+                ]
+            ),
+        ]
+
+        card_content_path = [
+            dbc.CardBody(
+                [
+                    html.P(
+                        self.era_model.filename,
+                        className="card-text", style={"font-weight": "bold"}
+                    ),
+                    html.P(
+                        "Current Filepath",
+                    ),
+                ]
+            ),
+        ]
+
+        cards = html.Div(
+            [
+                dbc.CardColumns(
+                    [
+                        dbc.Card(card_content_score, color=color_card_score, inverse=True),
+                        dbc.Card(card_content_vul, color=color_card_vul, inverse=True),
+                        dbc.Card(card_content_assets, color="secondary"),
+                    ],
+                ),
+                dbc.Card(card_content_path, color="primary", inverse=True),
+            ]
+        )
+
+        return cards
 
 

@@ -17,16 +17,14 @@ import ERA_Framework_Dashboard.ModelERA as modelERA
 
 # Create the Dash app object
 # integrate Bootstrap Stylesheet local / CSS files are integrated as well from /assets-folder
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX], suppress_callback_exceptions=True)
 app.title = 'ERA Framework'
-
-
 
 # Create the Model Object
 model = modelERA.ModelERA()
 
 # Create the View Object and generate the Main Layout
-view = viewEra.ViewEra(title="EAM Risk Assessment Framework", era_model=model)
+view = viewEra.ViewEra(title="EAM Risk Assessment Framework", era_model=model, dash_app=app)
 app.layout = view.create_main_layout()
 
 # Connect the Controller and register the callbacks for View

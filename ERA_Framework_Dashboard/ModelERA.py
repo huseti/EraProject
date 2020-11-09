@@ -106,7 +106,7 @@ class ModelERA:
                 if node['class'] == 'Technology':
                     self.average_era_score_assets += node['era_score']
                     nodes.append({'data': {
-                        'id': node['id'], 'class': node['class'], 'label': node['label'], 'era_score': node['era_score'],
+                        'id': node['id'], 'class': node['class'], 'label': node['technology_product'], 'era_score': node['era_score'],
                         'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
                             node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
                         'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':
@@ -120,7 +120,7 @@ class ModelERA:
                 if node['class'] == 'Vulnerability':
                     self.total_vulnerabilities += 1
                     nodes.append({'data': {
-                        'id': node['id'], 'class': node['class'], 'label': node['label'], 'era_score': node['era_score'],
+                        'id': node['id'], 'class': node['class'], 'label': '', 'era_score': node['era_score'],
                         'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
                             node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
                         'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':

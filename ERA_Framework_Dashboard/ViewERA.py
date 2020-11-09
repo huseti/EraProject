@@ -8,52 +8,33 @@ import dash_core_components as dcc
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash
 import ERA_Framework_Dashboard.assets.Stylesheets as styleERA
 import ERA_Framework_Dashboard.ModelERA as modelERA
 import pandas as pd
+import base64
 
 
 class ViewEra:
 
     # Constructor
-    def __init__(self, title: str, era_model: modelERA):
+    def __init__(self, title: str, era_model: modelERA, dash_app: dash.Dash):
         self.title = title
         self.era_model = era_model
+        self.app = dash_app
 
     # Load main Layout of Dash App
     def create_main_layout(self) -> html.Div:
+
         layout = html.Div(children=[
-            # Jumbotron Title and Information
-            self.__create_jumbotron(),
+            # Header Layout
+            html.Div([
+                # Jumbotron Title and Information
+                self.__create_jumbotron()
+            ]),
 
-            # Modal Element
-            dbc.Modal(
-                [
-                    dbc.ModalHeader("EAM Risk Assessment Framework (ERA)"),
-                    dbc.ModalBody("The ERA framework is an assessment framework that provides a comprehensive view of "
-                                  "existing IT security risks across the entire enterprise architecture of companies on"
-                                  " a technological level applying EAM. The framework is intended to identify and asses"
-                                  "s the technological threats according to the protection goals of the company."
-                                  "For further information contact Mr. Tim Huse via tim.huse@fu-berlin.de"),
-                    dbc.ModalFooter(
-                        dbc.Button("Close", id="close", color='danger', className="ml-auto")
-                    ),
-                ],
-                id="modal-info",
-                size="xl",
-            ),
-
-            # Upload Component
-            dcc.Upload(
-                id='upload-data',
-                children=html.Div([
-                    'Drag and Drop your ERA File in JSON Format or ',
-                    html.A('Select JSON File', id='Upload_Link')
-                ]),
-                style=styleERA.get_style_upload(),
-                # Forbid multiple files to be uploaded
-                multiple=False
-            ),
+            # Modal for "Learn more"-button
+            self.__create_modal_further_information(),
 
             # Layout 3 Columns
             html.Div(
@@ -62,8 +43,8 @@ class ViewEra:
                         [  # Generate Left Column of Layout with legend and form
                             dbc.Col(self.__create_left_column(), width=3),
 
-                            # Generate Cytoscape Graph
-                            dbc.Col(self.__create_cyto_graph()),
+                            # Generate Central Column with Upload Component and Cytoscape Graph
+                            dbc.Col(self.__create_central_column()),
 
                             # Generate Right Column of Layout with details and info bar
                             dbc.Col(self.__create_right_column(), width=3),
@@ -78,94 +59,164 @@ class ViewEra:
     def __create_cyto_graph(self):
         graph = html.Div(
             [
+                # Div to upload the graph via callback
                 cyto.Cytoscape(
                     id='cytoscape-era-model',
                     stylesheet=styleERA.get_stylesheet_cyto(),
-                    zoomingEnabled=True,
-                    minZoom=0.5,
-                    style={'width': '100%', 'height': '700px'},
-                    layout={
-                        'name': 'breadthfirst',
-                        'roots': '[class = "Process"]'
-                    },
+                    style={'width': '0px%', 'height': '0px'},
                     elements=[]
-                ),
+                )
 
             ],
-            id='graph-div')
+            id='graph-div', style={'border': '1px solid rgba(0, 0, 0, 0.08)'}
+        )
         return graph
 
+    # Load Left column of layout with legend and form
+    def __create_central_column(self):
+        layout = html.Div(children=[
+            self.__create_upload_component(),
+            self.__create_cyto_graph(),
+        ])
+        return layout
 
     # Load Left column of layout with legend and form
     def __create_right_column(self):
         layout = html.Div(children=[
-            self.__create_detail_info_node(),
-            self.__create_detail_info_edge(),
+            self.__create_search_bar(),
+            self.__create_form(),
             self.__create_info_bar()
         ])
         return layout
 
-    # Load detail information on the right side (of
+    # Load detail information of node
     def __create_detail_info_node(self):
         layout = html.Div([
-            html.H6('Details Node'),
+            html.H6(['Details Node',
+                    html.Span("?",
+                              id="tooltip-tg-node", className="text-info")
+                     ]),
+            dbc.Tooltip(
+                "This window displays further information about a selected asset. Tap on a node within the ERA model "
+                "graph to select it.",
+                target="tooltip-tg-node",
+            ),
             html.Hr(className="my-2"),
-            html.Div(id='table-tapNodeData-json')
+            html.Div(id='table-tapNodeData-json', style={'overflow-y': 'scroll', 'height': '400px',
+                                                         'padding': '5%'})
         ],
-            style={'width': '100%', 'height': '300px', 'paddingBottom': '5%', 'paddingTop': '7%',
-                   'paddingRight': '5%', 'paddingLeft': '10%', 'margin-bottom': '30px', 'overflow-y': 'scroll'})
+            className="blocks_areas",
+            style={'width': '100%', 'paddingRight': '5%', 'paddingLeft': '10%', 'paddingTop': '5%',
+                   'paddingBottom': '20px', 'margin-bottom': '20px'})
         return layout
 
-    # Load detail information on the right side (of
+    # Load detail information of edge
     def __create_detail_info_edge(self):
         layout = html.Div([
-            html.H6('Details Edge'),
+            html.H6(['Details Edge',
+                    html.Span("?",
+                              id="tooltip-tg-edge", className="text-info")
+                     ]),
+            dbc.Tooltip(
+                "This window displays further information about a selected connection between two assets. Tap on a edge"
+                " within the ERA model graph to select it.",
+                target="tooltip-tg-edge",
+            ),
             html.Hr(className="my-2"),
-            html.Div(id='table-tapEdgeData-json')
+            html.Div(id='table-tapEdgeData-json', style={'overflow-y': 'scroll', 'height': '330px',
+                                                         'padding': '5%'})
         ],
-            style={'width': '100%', 'height': '250px', 'paddingBottom': '5%', 'paddingTop': '7%',
-                   'paddingRight': '5%', 'paddingLeft': '10%', 'overflow-y': 'scroll'})
+            className="blocks_areas",
+            style={'width': '100%', 'paddingTop': '5%', 'paddingBottom': '20px',
+                   'paddingRight': '5%', 'paddingLeft': '10%', 'margin-bottom': '20px'})
         return layout
 
     # Load info bar on the right side (of
     def __create_info_bar(self):
         layout = html.Div([
-            html.H6('Info Bar'),
-            html.Hr(className="my-2"),
-            dbc.ListGroup(
-                [
-                    dbc.ListGroupItem(str(self.era_model.total_vulnerabilities) + "\nVulnerabil."),
-                    dbc.ListGroupItem('{0:.3g}'.format(self.era_model.average_era_score_assets) + "\nAvg. Score"),
-                    dbc.ListGroupItem(str(self.era_model.amount_nodes) + "\nAssets"),
-                ],
-                horizontal=True,
-                className="mb-2",
-                id='table-info-bar',
+            html.H6(['Info Bar',
+                    html.Span("?",
+                              id="tooltip-tg-info", className="text-info")
+                     ]),
+            dbc.Tooltip(
+                "This info bar displays further information about the ERA model. The first card displays the average "
+                "ERA score of all assets (excl. Vulnerabilities). The second card shows all detected vulnerabilities. "
+                "The third card displays the total amount of assets (excl. Vulnerabilities)."
+                "Additionally, the filename of the currently displayed ERA model is shown.",
+                target="tooltip-tg-info",
             ),
-            html.Div(id='filepath')
+            html.Hr(className="my-2"),
+            html.Div([],
+                     id='table-info-bar',
+                     )
         ],
-            style={'width': '100%', 'height': '150px', 'paddingBottom': '5%', 'paddingTop': '7%',
-                   'paddingRight': '5%', 'paddingLeft': '10%'})
+            className="blocks_areas",
+            style={'width': '100%', 'height': '320px', 'paddingBottom': '5%', 'paddingTop': '5%',
+                   'paddingRight': '5%', 'margin-top': '20px', 'paddingLeft': '10%', 'margin-bottom': '20px'})
         return layout
 
-    # Load Left column of layout with legend and form
+    # Load Left column of layout with detail info of nodes
     def __create_left_column(self):
         layout = html.Div(children=[
-            self.__create_form(),
-            self.__create_legend()
+            self.__create_detail_info_node(),
+            self.__create_detail_info_edge(),
         ])
         return layout
 
-    # Load form
-    def __create_form(self):
+    # Load Left column of layout with detail info of nodes
+    def __create_upload_component(self):
+        layout = html.Div(children=[
+            dcc.Upload(
+                id='upload-data',
+                children=html.Div([
+                    'Drag and Drop your ERA File in JSON Format here or ',
+                    html.A('click here', id='Upload_Link')
+                ]),
+                style=styleERA.get_style_upload(),
+                # Forbid multiple files to be uploaded
+                multiple=False
+            )
+        ])
+        return layout
+
+    # Create Search Bar
+    def __create_search_bar(self):
+
         search_input = dbc.FormGroup(
             [
-                dbc.Label("Asset Search", html_for="search-element", style={'margin-top': '20px'}),
-                dbc.Input(type="search", id="search-element", placeholder="Enter asset name ..."),
+                dbc.Input(type="search", id="search-element", placeholder="Enter asset name or id ...",
+                          style={'margin-top': '15px'}),
             ],
             className="mr-3",
         )
 
+        button = dbc.Button("Submit", id="submit_button", color="primary", size="sm",
+                            style={'margin-top': '1px', 'margin-right': '60px'})
+
+        form = dbc.Form([search_input, button])
+
+        layout = html.Div([
+            html.H6(['Search',
+                    html.Span("?",
+                              id="tooltip-tg-search", className="text-info")
+                     ]),
+            dbc.Tooltip(
+                "Search for an asset by entering its ID or name. All assets are shown that contain the entered "
+                "search term. Additionally, all connected assets are displayed in light grey. The search can be "
+                "combined with the filter settings below.",
+                target="tooltip-tg-search",
+            ),
+            html.Hr(className="my-2"),
+            form
+        ],
+            className="blocks_areas",
+            style={'width': '100%', 'height': '170px', 'paddingBottom': '5%', 'paddingTop': '5%',
+                   'paddingRight': '5%', 'paddingLeft': '10%'})
+
+        return layout
+
+    # Load form
+    def __create_form(self):
         score_range_slider = dbc.FormGroup(
             [
                 dbc.Label("ERA Score Range", html_for="score-range-slider", style={'margin-top': '20px'}),
@@ -198,7 +249,7 @@ class ViewEra:
 
         class_range_slider = dbc.FormGroup(
             [
-                dbc.Label("Class Range", html_for="class-range-slider", style={'margin-top': '20px'}),
+                dbc.Label("Asset Class Range", html_for="class-range-slider", style={'margin-top': '20px'}),
                 dcc.RangeSlider(id="class-range-slider", min=0, max=3, value=[0, 3], allowCross=False, marks={
                     0: {'label': 'Proc.'},
                     1: {'label': 'App.'},
@@ -211,64 +262,78 @@ class ViewEra:
                 ),
             ]
         )
-        buttons = html.Div([
-            dbc.Button("Submit", id="submit_button", color="primary", size="sm",
-                       style={'margin-top': '10px', 'margin-right': '60px'}),
+        button = html.Div([
             html.A(dbc.Button("Reset all", id="reset_button", color="danger", size="sm",
-                       style={'margin-top': '10px'}), href='/'),
+                              style={'margin-top': '20px'}), href='/'),
 
 
         ])
 
-        form = dbc.Form([score_range_slider, class_range_slider, search_input, buttons])
+        form = dbc.Form([score_range_slider, class_range_slider, button])
 
         layout = html.Div([
-            html.H6('Options'),
+            html.H6(['Filter Options',
+                    html.Span("?",
+                              id="tooltip-tg-form", className="text-info")
+                     ]),
+            dbc.Tooltip(
+                "Filter the ERA model graph by using the below sliders. Press the Reset-Button to reset the whole "
+                "settings to the initial model. These filter can be combined with the asset search.",
+                target="tooltip-tg-form",
+            ),
             html.Hr(className="my-2"),
             form
         ],
-            style={'width': '100%', 'height': '250px', 'paddingBottom': '5%', 'paddingTop': '7%',
-                   'paddingRight': '5%', 'paddingLeft': '10%', 'overflow-y': 'scroll'})
-        return layout
-
-    # Load legend
-    def __create_legend(self):
-        df = pd.DataFrame(
-            {
-                "Element": ["X -> Y", "Green asset", "Orange asset", "Red asset", "Rectangle", "Triangle", "Circle",
-                            "Vee"],
-                "Description": ["X is dependent on Y", "ERA Score 0.0 - 3.9", "ERA Score 4.0 - 6.9",
-                                "ERA Score 7.0 - 10.0",
-                                "Process", "Application", "Technology", "Vulnerability"
-                                ],
-            }
-        )
-
-        layout = html.Div([
-            html.H6('Legend'),
-            html.Hr(className="my-2"),
-            dbc.Table.from_dataframe(df, id='table_legend', striped=True, bordered=True, hover=True, size='sm',
-                                     style={'margin-top': '20px', 'margin-right': '10px'})
-        ],
-            style={'width': '100%', 'height': '250px', 'paddingBottom': '5%', 'marginTop': '15%', 'paddingTop': '7%',
-                   'paddingRight': '1%', 'paddingLeft': '10%'})
+            className="blocks_areas",
+            style={'width': '100%', 'height': '370px', 'paddingBottom': '5%', 'paddingTop': '5%',
+                   'paddingRight': '5%', 'paddingLeft': '10%', 'margin-top': '20px'})
         return layout
 
     # Load Jumbotron Title and Information
     def __create_jumbotron(self):
         layout = dbc.Jumbotron(
             [
-                html.H1(self.title, className="display-3"),
-                html.P(
-                    "An interactive Dashboard Application to display your ERA framework",
-                    className="lead",
-                ),
-                html.Hr(className="my-2"),
+                html.H4(self.title, className="display-4"),
+                html.Hr(className="my-2", id="hr-header"),
                 html.P(
                     "EAM risk assessment (ERA) is a framework developed by Dr. Daniel Fuerstenau, Dr. Carson Woo"
-                    " and Tim Huse"
+                    " and Tim Huse", style={"color": "white"}
                 ),
-                html.P(dbc.Button("Learn more", color="primary", id="open"), className="lead"),
-            ]
+                html.P(dbc.Button("Learn more", color="secondary", id="open"), className="lead"),
+            ],
+            style={"background-color": "#3d3d3d", "padding-bottom": "15px", "padding-top": "30px"}
         )
         return layout
+
+    # Load Modal for "Learn more"-Button
+    def __create_modal_further_information(self):
+        # Modal Element
+        layout = dbc.Modal(
+            [
+                dbc.ModalHeader("EAM Risk Assessment Framework (ERA)"),
+                dbc.ModalBody(["The ERA framework is an assessment framework that provides a comprehensive view of "
+                              "existing IT security risks across the entire enterprise architecture of companies on"
+                               " a technological level applying EAM. The framework is intended to identify and asses"
+                               "s the technological threats according to the protection goals of the company.",
+                               html.Hr(),
+                               html.H6("The ERA Process:"),
+                               html.P(),
+                               html.Img(src=self.app.get_asset_url('eraProcess.png'), width="800px", alt="ERAProcess",
+                                        title="ERAProcess", style={"margin-bottom": "30px"}),
+                               html.P(),
+                               html.Hr(),
+                               html.H6("Legend of the ERA Graph:"),
+                               html.P(),
+                               html.Img(src=self.app.get_asset_url('legend.png'), width="550px", alt="LegendERAModel",
+                                        title="LegendERAModel", style={"margin-bottom": "30px"}),
+                               html.P("For further information contact Mr. Tim Huse via tim.huse@fu-berlin.de")]
+                              ),
+                dbc.ModalFooter(
+                    dbc.Button("Close", id="close", color='danger', className="ml-auto")
+                ),
+            ],
+            id="modal-info",
+            size="xl",
+        )
+        return layout
+

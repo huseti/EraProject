@@ -6,6 +6,7 @@
 
 def get_stylesheet_cyto() -> list:
     stylesheet = [
+
         # Group selectors
         # Define the node and edge styles
         {
@@ -90,16 +91,16 @@ def get_style_upload():
         'width': '95%',
         'height': '60px',
         'lineHeight': '60px',
-        'borderWidth': '1px',
+        'borderWidth': '2px',
         'borderStyle': 'dashed',
         'borderRadius': '5px',
         'textAlign': 'center',
-        'margin-top': '10px',
         'margin-left': '20px',
         'margin-right': '20px',
-        'margin-bottom': '50px',
-        'color': '#bdc8c9',
-        'border-color': '#bdc8c9'
+        'margin-bottom': '40px',
+        'color': '#80abff',
+        'border-color': '#80abff',
+        'cursor': 'pointer'
     }
     return style
 
