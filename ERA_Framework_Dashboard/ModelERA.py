@@ -165,7 +165,7 @@ class ModelERA:
         return self.era_cyto_graph
 
     # Filter the complete cytoscape graph for search terms of form and return the filtered graph
-    def filter_cyto(self, score_range, class_range, search_term) -> list:
+    def filter_cyto(self, score_range=[0, 10], class_range=[0, 3], search_term='') -> list:
 
         # Check if ERA Cyto Graph is initial
         if not self.era_cyto_graph:
@@ -237,7 +237,7 @@ class ModelERA:
                     # Append Technology Objects
                     if node['class'] == 'Technology':
                         nodes.append({'data': {
-                            'id': node['id'], 'class': node['class'], 'label': node['label'], 'era_score': node['era_score'],
+                            'id': node['id'], 'class': node['class'], 'label': node['technology_product'], 'era_score': node['era_score'],
                             'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
                                 node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
                             'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':
@@ -250,7 +250,7 @@ class ModelERA:
                     # Append Vulnerability Objects
                     if node['class'] == 'Vulnerability':
                         nodes.append({'data': {
-                            'id': node['id'], 'class': node['class'], 'label': node['label'], 'era_score': node['era_score'],
+                            'id': node['id'], 'class': node['class'], 'label': '', 'era_score': node['era_score'],
                             'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
                                 node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
                             'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':
@@ -292,4 +292,242 @@ class ModelERA:
         else:
             # return initial graph as form settings haven't been changed
             return self.era_cyto_graph
+
+    # Filter the complete cytoscape graph for a search terms and return the filtered graph
+    def search_elements_cyto(self, search_term: str = '') -> list:
+
+        # Check if ERA Cyto Graph is initial
+        if not self.era_cyto_graph:
+            return []
+
+        # return initial graph as form settings haven't been changed
+        if not search_term:
+            return self.era_cyto_graph
+
+        # Initialize Helper variables
+        detected_nodes = []
+        included_nodes = []
+        filtered_cyto = []
+        nodes = []
+        edges = []
+
+        # Loop over nodes in JSON File
+        for node in self.era_json_file['Nodes']:
+
+            # Only append nodes that are inside the filter criteria - set the "search_result"-Attribute
+            if search_term.upper() in node['label'].upper() or search_term.upper() in str(node['id'].upper()):
+
+                # Add the node to the included nodes list
+                detected_nodes.append(node['id'])
+
+                # Append Process Objects
+                if node['class'] == 'Process':
+                    nodes.append({'data': {
+                        'id': node['id'], 'search_result': True, 'class': node['class'], 'label': node['label'],
+                        'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
+                            node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'affecting_vulnerabilities': node['affecting_vulnerabilities'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'], 'description':
+                            node['description'], 'process_responsible': node['process_responsible']
+                    }})
+
+                # Append Application Objects
+                if node['class'] == 'Application':
+                    nodes.append({'data': {
+                        'id': node['id'], 'search_result': True, 'class': node['class'], 'label': node['label'],
+                        'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_id':
+                            node['impacting_asset_id'], 'impacting_asset_era_score': node['impacting_asset_era_score'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'], 'description':
+                            node['description'],
+                        'application_responsible_system': node['application_responsible_system'],
+                        'application_department_responsible_system': node['application_department_responsible_system'],
+                        'application_responsible_business': node['application_responsible_business'],
+                        'application_department_responsible_business': node[
+                            'application_department_responsible_business'],
+                        'application_start_date': node['application_start_date'], 'application_vendor':
+                            node['application_vendor'], 'application_operator': node['application_operator'],
+                        'application_total_user': node['application_total_user'],
+                        'application_availability_requirements':
+                            node['application_availability_requirements'], 'application_integrity_requirements':
+                            node['application_integrity_requirements'], 'application_confidentiality_requirements':
+                            node['application_confidentiality_requirements']
+                    }})
+
+                # Append Technology Objects
+                if node['class'] == 'Technology':
+                    nodes.append({'data': {
+                        'id': node['id'], 'search_result': True, 'class': node['class'], 'label': node['technology_product'],
+                        'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
+                            node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'], 'description':
+                            node['description'], 'technology_vendor': node['technology_vendor'], 'technology_product':
+                            node['technology_product'], 'technology_version': node['technology_version']
+                    }})
+
+                # Append Vulnerability Objects
+                if node['class'] == 'Vulnerability':
+                    nodes.append({'data': {
+                        'id': node['id'], 'search_result': True, 'class': node['class'], 'label': '', 'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
+                            node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'], 'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'], 'description':
+                            node['description'], 'vulnerability_cvss_score': node['vulnerability_cvss_score'],
+                        'vulnerability_access_vector': node['vulnerability_access_vector'],
+                        'vulnerability_access_complexity':
+                            node['vulnerability_access_complexity'], 'vulnerability_authentication':
+                            node['vulnerability_authentication'], 'vulnerability_user_interaction_required':
+                            node['vulnerability_user_interaction_required'], 'vulnerability_severity':
+                            node['vulnerability_severity'], 'vulnerability_confidentiality_impact':
+                            node['vulnerability_confidentiality_impact'], 'vulnerability_integrity_impact':
+                            node['vulnerability_integrity_impact'], 'vulnerability_availability_impact':
+                            node['vulnerability_availability_impact'], 'vulnerability_cvss_exploitability_score':
+                            node['vulnerability_cvss_exploitability_score'], 'vulnerability_cvss_impact_score':
+                            node['vulnerability_cvss_impact_score'], 'vulnerability_date': node['vulnerability_date'],
+                        'vulnerability_obtain_all_privilege': node['vulnerability_obtain_all_privilege'],
+                        'vulnerability_obtain_user_privilege': node['vulnerability_obtain_user_privilege'],
+                        'vulnerability_obtain_other_privilege': node['vulnerability_obtain_other_privilege']
+                    }})
+
+        # Loop over edges in JSON File and only append the ones of nodes that connect the searched assets
+        # with others
+        for edge in self.era_json_file['Edges']:
+
+            if edge['source'] in detected_nodes:
+                included_nodes.append(edge['target'])
+
+            if edge['target'] in detected_nodes:
+                included_nodes.append(edge['source'])
+
+            if edge['source'] in detected_nodes or edge['target'] in detected_nodes:
+                edges.append({'data': {
+                    'source': edge['source'], 'target': edge['target'],
+                    'source_class': edge['source_class'], 'target_class':
+                        edge['target_class'],
+                    'label': str(edge['source_class'] + ' ' + edge['source'] + ' to ' +
+                                 edge['target_class'] + ' ' + edge['target']),
+                    'impact score': edge['impact_score'], 'rater': edge['rater'],
+                    'criticality': edge['criticality'],
+                    'non-substitutability': edge['non-substitutability'],
+                    'indegree centrality': edge['indegree centrality'],
+                    'outdegree centrality': edge['outdegree centrality'], 'impact on availability':
+                        edge['impact on availability'],
+                    'impact on confidentiality': edge['impact on confidentiality'],
+                    'impact on integrity': edge['impact on integrity']
+                }})
+
+        # Loop over nodes in JSON File a second time and append all assets that are connected to detected assets
+        for node in self.era_json_file['Nodes']:
+
+            # Only append nodes that are connected to detected assets - set the "connected_to"-Attribute
+            if node['id'] in included_nodes and node['id'] not in detected_nodes:
+
+                # Append Process Objects
+                if node['class'] == 'Process':
+                    nodes.append({'data': {
+                        'id': node['id'], 'connected_to': True, 'class': node['class'], 'label': node['label'],
+                        'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
+                            node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'],
+                        'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'affecting_vulnerabilities': node['affecting_vulnerabilities'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'],
+                        'description':
+                            node['description'], 'process_responsible': node['process_responsible']
+                    }})
+
+                # Append Application Objects
+                if node['class'] == 'Application':
+                    nodes.append({'data': {
+                        'id': node['id'], 'connected_to': True, 'class': node['class'], 'label': node['label'],
+                        'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_id':
+                            node['impacting_asset_id'],
+                        'impacting_asset_era_score': node['impacting_asset_era_score'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'],
+                        'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'],
+                        'description':
+                            node['description'],
+                        'application_responsible_system': node['application_responsible_system'],
+                        'application_department_responsible_system': node[
+                            'application_department_responsible_system'],
+                        'application_responsible_business': node['application_responsible_business'],
+                        'application_department_responsible_business': node[
+                            'application_department_responsible_business'],
+                        'application_start_date': node['application_start_date'], 'application_vendor':
+                            node['application_vendor'], 'application_operator': node['application_operator'],
+                        'application_total_user': node['application_total_user'],
+                        'application_availability_requirements':
+                            node['application_availability_requirements'], 'application_integrity_requirements':
+                            node['application_integrity_requirements'],
+                        'application_confidentiality_requirements':
+                            node['application_confidentiality_requirements']
+                    }})
+
+                # Append Technology Objects
+                if node['class'] == 'Technology':
+                    nodes.append({'data': {
+                        'id': node['id'], 'connected_to': True, 'class': node['class'],
+                        'label': node['technology_product'],
+                        'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
+                            node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'],
+                        'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'],
+                        'description':
+                            node['description'], 'technology_vendor': node['technology_vendor'],
+                        'technology_product':
+                            node['technology_product'], 'technology_version': node['technology_version']
+                    }})
+
+                # Append Vulnerability Objects
+                if node['class'] == 'Vulnerability':
+                    nodes.append({'data': {
+                        'id': node['id'], 'connected_to': True, 'class': node['class'], 'label': '',
+                        'era_score': node['era_score'],
+                        'protection_requirements': node['protection_requirements'], 'impacting_asset_era_score':
+                            node['impacting_asset_era_score'], 'impacting_asset_id': node['impacting_asset_id'],
+                        'impacting_asset_impact_score': node['impacting_asset_impact_score'],
+                        'impacting_asset_class':
+                            node['impacting_asset_class'],
+                        'count_affecting_vulnerabilities': node['count_affecting_vulnerabilities'],
+                        'description':
+                            node['description'], 'vulnerability_cvss_score': node['vulnerability_cvss_score'],
+                        'vulnerability_access_vector': node['vulnerability_access_vector'],
+                        'vulnerability_access_complexity':
+                            node['vulnerability_access_complexity'], 'vulnerability_authentication':
+                            node['vulnerability_authentication'], 'vulnerability_user_interaction_required':
+                            node['vulnerability_user_interaction_required'], 'vulnerability_severity':
+                            node['vulnerability_severity'], 'vulnerability_confidentiality_impact':
+                            node['vulnerability_confidentiality_impact'], 'vulnerability_integrity_impact':
+                            node['vulnerability_integrity_impact'], 'vulnerability_availability_impact':
+                            node['vulnerability_availability_impact'],
+                        'vulnerability_cvss_exploitability_score':
+                            node['vulnerability_cvss_exploitability_score'], 'vulnerability_cvss_impact_score':
+                            node['vulnerability_cvss_impact_score'],
+                        'vulnerability_date': node['vulnerability_date'],
+                        'vulnerability_obtain_all_privilege': node['vulnerability_obtain_all_privilege'],
+                        'vulnerability_obtain_user_privilege': node['vulnerability_obtain_user_privilege'],
+                        'vulnerability_obtain_other_privilege': node['vulnerability_obtain_other_privilege']
+                    }})
+
+        filtered_cyto = nodes + edges
+
+        return filtered_cyto
 

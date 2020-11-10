@@ -11,8 +11,6 @@ import dash_bootstrap_components as dbc
 import dash
 import ERA_Framework_Dashboard.assets.Stylesheets as styleERA
 import ERA_Framework_Dashboard.ModelERA as modelERA
-import pandas as pd
-import base64
 
 
 class ViewEra:
@@ -63,7 +61,7 @@ class ViewEra:
                 cyto.Cytoscape(
                     id='cytoscape-era-model',
                     stylesheet=styleERA.get_stylesheet_cyto(),
-                    style={'width': '0px%', 'height': '0px'},
+                    style={'width': '1px%', 'height': '1px'},
                     elements=[]
                 )
 
@@ -123,7 +121,7 @@ class ViewEra:
                 target="tooltip-tg-edge",
             ),
             html.Hr(className="my-2"),
-            html.Div(id='table-tapEdgeData-json', style={'overflow-y': 'scroll', 'height': '330px',
+            html.Div(id='table-tapEdgeData-json', style={'overflow-y': 'scroll', 'height': '300px',
                                                          'padding': '5%'})
         ],
             className="blocks_areas",
@@ -185,13 +183,13 @@ class ViewEra:
         search_input = dbc.FormGroup(
             [
                 dbc.Input(type="search", id="search-element", placeholder="Enter asset name or id ...",
-                          style={'margin-top': '15px'}),
+                          style={'margin-top': '10px', 'width': '230px', 'float': 'left'}),
             ],
             className="mr-3",
         )
 
-        button = dbc.Button("Submit", id="submit_button", color="primary", size="sm",
-                            style={'margin-top': '1px', 'margin-right': '60px'})
+        button = dbc.Button("Submit", id="search_button", color="primary", size="sm", disabled=True,
+                            style={'margin-top': '18px', 'margin-left': '30px'})
 
         form = dbc.Form([search_input, button])
 
@@ -201,16 +199,16 @@ class ViewEra:
                               id="tooltip-tg-search", className="text-info")
                      ]),
             dbc.Tooltip(
-                "Search for an asset by entering its ID or name. All assets are shown that contain the entered "
-                "search term. Additionally, all connected assets are displayed in light grey. The search can be "
-                "combined with the filter settings below.",
+                "Search for an asset by entering its ID or name. All assets are shown in lightblue border that contain "
+                "the entered search term. Additionally, all connected assets are displayed in a slightly darker color. "
+                "The search can not be combined with the filter settings below!",
                 target="tooltip-tg-search",
             ),
             html.Hr(className="my-2"),
             form
         ],
             className="blocks_areas",
-            style={'width': '100%', 'height': '170px', 'paddingBottom': '5%', 'paddingTop': '5%',
+            style={'width': '100%', 'height': '140px', 'paddingBottom': '5%', 'paddingTop': '5%',
                    'paddingRight': '5%', 'paddingLeft': '10%'})
 
         return layout
@@ -262,6 +260,8 @@ class ViewEra:
                 ),
             ]
         )
+        apply_button = dbc.Button("Apply Filter", id="filter_button", color="primary", size="sm", disabled=True,
+                                  style={'margin-top': '20px', 'margin-right': '20px', 'float': 'left'})
         button = html.Div([
             html.A(dbc.Button("Reset all", id="reset_button", color="danger", size="sm",
                               style={'margin-top': '20px'}), href='/'),
@@ -269,7 +269,7 @@ class ViewEra:
 
         ])
 
-        form = dbc.Form([score_range_slider, class_range_slider, button])
+        form = dbc.Form([score_range_slider, class_range_slider, apply_button, button])
 
         layout = html.Div([
             html.H6(['Filter Options',
@@ -277,8 +277,9 @@ class ViewEra:
                               id="tooltip-tg-form", className="text-info")
                      ]),
             dbc.Tooltip(
-                "Filter the ERA model graph by using the below sliders. Press the Reset-Button to reset the whole "
-                "settings to the initial model. These filter can be combined with the asset search.",
+                "Filter the ERA model graph by using the below sliders and press the Submit-Button. "
+                "Press the Reset-Button to reset the whole settings to the initial model. "
+                "These filter can not be combined with the asset search!",
                 target="tooltip-tg-form",
             ),
             html.Hr(className="my-2"),
@@ -318,7 +319,7 @@ class ViewEra:
                                html.Hr(),
                                html.H6("The ERA Process:"),
                                html.P(),
-                               html.Img(src=self.app.get_asset_url('eraProcess.png'), width="800px", alt="ERAProcess",
+                               html.Img(src=self.app.get_asset_url('eraProcess.png'), width="900px", alt="ERAProcess",
                                         title="ERAProcess", style={"margin-bottom": "30px"}),
                                html.P(),
                                html.Hr(),
@@ -334,6 +335,7 @@ class ViewEra:
             ],
             id="modal-info",
             size="xl",
+            scrollable=True,
         )
         return layout
 

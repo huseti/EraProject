@@ -17,7 +17,7 @@ import ERA_Framework_Dashboard.ModelERA as modelERA
 
 # Create the Dash app object
 # integrate Bootstrap Stylesheet local / CSS files are integrated as well from /assets-folder
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX], suppress_callback_exceptions=True)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
 app.title = 'ERA Framework'
 
 # Create the Model Object

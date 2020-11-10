@@ -61,33 +61,39 @@ class ControllerERA:
         # Callback for Uploading JSON File and Updating the cyto graph and info bar
         @self.app.callback(
             [Output('graph-div', 'children'),
-             Output('table-info-bar', 'children')],
+             Output('table-info-bar', 'children'),
+             Output('search_button', 'disabled'),
+             Output('filter_button', 'disabled')],
             [Input('upload-data', 'contents')],
             [State('upload-data', 'filename')])
         def update_output(list_of_contents, list_of_names):
 
             if list_of_contents is not None:
+                search_disabled = False
+                filter_disabled = False
                 self.era_model.parse_contents_to_json(list_of_contents, list_of_names)
             else:
+                search_disabled = True
+                filter_disabled = True
                 return html.P("Upload ERA data above to see a graph model of your data here", className="text-muted",
                               style={
                                   'textAlign': 'center',
                                   'margin-top': '240px',
-                                  'paddingBottom': '240px'
+                                  'paddingBottom': '440px'
                               }), \
                        html.P("Upload ERA data above to see information here", className="text-muted",
                               style={
                                   'textAlign': 'center',
                                   'margin-top': '20px'
-                              })
+                              }), search_disabled, filter_disabled
 
             cyto_graph = cyto.Cytoscape(
                 id='cytoscape-era-model',
                 stylesheet=styleERA.get_stylesheet_cyto(),
                 zoomingEnabled=True,
-                minZoom=0.4,
+                minZoom=0.3,
                 maxZoom=2.5,
-                style={'width': '100%', 'height': '500px'},
+                style={'width': '100%', 'height': '700px'},
                 layout={
                     'name': 'breadthfirst',
                     'roots': '[class = "Process"]'
@@ -98,7 +104,7 @@ class ControllerERA:
             # Generate the infobar
             info_bar = self.__generate_infobar()
 
-            return cyto_graph, info_bar
+            return cyto_graph, info_bar, search_disabled, filter_disabled
 
         # Callback for open the Modal with more information about the ERA framework
         @self.app.callback(
@@ -110,47 +116,81 @@ class ControllerERA:
                 return not is_open
             return is_open
 
-        # Callback for open the legend bout the ERA framework graph components
-        @self.app.callback(
-            Output("collapse-legend", "is_open"),
-            [Input("collapse-button-legend", "n_clicks")],
-            [State("collapse-legend", "is_open")],
-        )
-        def toggle_collapse(n, is_open):
-            if n:
-                return not is_open
-            return is_open
-
         # Form callbacks to filter the Graph
         @self.app.callback(
             [Output('cytoscape-era-model', 'elements'),
-             Output('cytoscape-era-model', 'layout')],
-            [Input('submit_button', 'n_clicks')],
+             Output('cytoscape-era-model', 'layout'),
+             Output('score-range-slider', 'value'),
+             Output('class-range-slider', 'value'),
+             Output('search-element', 'value'),
+             Output('cytoscape-era-model', 'stylesheet')],
+            [Input('search_button', 'n_clicks'),
+             Input('filter_button', 'n_clicks')],
             [State('score-range-slider', 'value'),
              State('class-range-slider', 'value'),
              State('search-element', 'value')])
-        def filter_output_update_graph_layout(n_clicks_submit, value_score_slider, value_class_slider,
-                                              value_search_element):
-            # Filter the Graph with input filter criteria
-            filtered_graph = self.era_model.filter_cyto(value_score_slider, value_class_slider, value_search_element)
+        def filter_or_search_update_graph_layout(n_clicks_search, n_clicks_filter, value_score_slider,
+                                                 value_class_slider, value_search_element):
 
-            # Update the graph layout
-            layout_update = {}
-            # If a search term is entered, Score Range Slider is not initial or only vulnerabilities are shown
-            # switch to random layout
-            if value_search_element or value_score_slider != [0, 10] or value_class_slider[0] == 3:
-                layout_update = {'name': 'random'}
-            # If processes are the lowest class show tree with process as root
-            elif value_class_slider[0] == 0:
-                layout_update = {'name': 'breadthfirst', 'roots': '[class = "Process"]'}
-            # If applications are the lowest class show tree with applications as root
-            elif value_class_slider[0] == 1:
-                layout_update = {'name': 'breadthfirst', 'roots': '[class = "Application"]'}
-            # If technologies are the lowest class show tree with technologies as root
-            elif value_class_slider[0] == 2:
-                layout_update = {'name': 'breadthfirst', 'roots': '[class = "Technology"]'}
+            # access the global context variable for callbacks
+            ctx = dash.callback_context
 
-            return filtered_graph, layout_update
+            # determine if filter button was pressed
+            if ctx.triggered[0]['prop_id'] == 'filter_button.n_clicks':
+
+                # Filter the Graph with input filter criteria
+                filtered_graph = self.era_model.filter_cyto(value_score_slider, value_class_slider)
+
+                # Empty the search-bar
+                search_text = ''
+
+                # Update the graph layout
+                layout_update = {}
+                # If a search term is entered, Score Range Slider is not initial or only vulnerabilities are shown
+                # switch to random layout
+                if value_score_slider != [0, 10] or value_class_slider[0] == 3:
+                    layout_update = {'name': 'circle'}
+                # If processes are the lowest class show tree with process as root
+                elif value_class_slider[0] == 0:
+                    layout_update = {'name': 'breadthfirst', 'roots': '[class = "Process"]'}
+                # If applications are the lowest class show tree with applications as root
+                elif value_class_slider[0] == 1:
+                    layout_update = {'name': 'breadthfirst', 'roots': '[class = "Application"]'}
+                # If technologies are the lowest class show tree with technologies as root
+                elif value_class_slider[0] == 2:
+                    layout_update = {'name': 'breadthfirst', 'roots': '[class = "Technology"]'}
+
+                return filtered_graph, layout_update, value_score_slider, value_class_slider, search_text, \
+                       styleERA.get_stylesheet_cyto()
+
+            # determine if search button was pressed
+            elif ctx.triggered[0]['prop_id'] == 'search_button.n_clicks':
+
+                # Reset sliders to default
+                value_score_slider = [0, 10]
+                value_class_slider = [0, 3]
+
+                # update layout if search term is entered
+                if value_search_element == '':
+                    layout_update = {'name': 'breadthfirst', 'roots': '[class = "Process"]'}
+                    stylesheet_cyto = styleERA.get_stylesheet_cyto()
+                else:
+                    layout_update = {'name': 'concentric'}
+                    stylesheet_cyto = styleERA.get_stylesheet_cyto_search()
+
+                search_result_graph = self.era_model.search_elements_cyto(value_search_element)
+
+                if search_result_graph == []:
+                    search_result_graph = [{'data': {'id': 'one', 'label': 'No element found.'}}]
+
+                return search_result_graph, layout_update,\
+                    value_score_slider, value_class_slider, value_search_element, stylesheet_cyto
+
+            # return basic initial graph if no button was pressed
+            else:
+                return self.era_model.filter_cyto(), \
+                       {'name': 'breadthfirst', 'roots': '[class = "Process"]'}, \
+                       [0, 10], [0, 3], '', styleERA.get_stylesheet_cyto()
 
     # Generate the table details for a node
     def __generate_table_details_node(self, data):
@@ -305,7 +345,6 @@ class ControllerERA:
         else:
             color_card_vul = "warning"
 
-
         card_content_assets = [
             dbc.CardBody(
                 [
@@ -341,7 +380,7 @@ class ControllerERA:
                         dbc.Card(card_content_assets, color="secondary"),
                     ],
                 ),
-                dbc.Card(card_content_path, color="primary", inverse=True),
+                dbc.Card(card_content_path, color="secondary"),
             ]
         )
 
