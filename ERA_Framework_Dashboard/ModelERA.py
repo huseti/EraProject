@@ -4,9 +4,9 @@
 # -*----- coding: utf-8 --------------------------*-
 
 # imports
-import json
 import base64
 import io
+import json
 
 
 class ModelERA:

@@ -4,11 +4,11 @@
 # -*----- coding: utf-8 --------------------------*-
 
 # imports
+import dash
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_cytoscape as cyto
 import dash_html_components as html
-import dash_bootstrap_components as dbc
-import dash
 import ERA_Framework_Dashboard.assets.Stylesheets as styleERA
 import ERA_Framework_Dashboard.ModelERA as modelERA
 

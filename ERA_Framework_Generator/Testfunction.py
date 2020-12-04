@@ -1,15 +1,17 @@
 # imports
+from datetime import datetime
+import os
+from tkinter import Tk
+from tkinter.filedialog import asksaveasfilename
+import timeit
+
 from ERA_Framework_Generator.Process import Process
 from ERA_Framework_Generator.Application import Application
 from ERA_Framework_Generator.Technology import Technology
 from ERA_Framework_Generator.Vulnerability import Vulnerability
 from ERA_Framework_Generator.ERAScoreCalculator import ERAScoreCalculator
 from ERA_Framework_Generator.ERAJsonParser import ERAJsonParser
-from tkinter import Tk
-from tkinter.filedialog import asksaveasfilename
-from datetime import datetime
-import os
-import timeit
+
 
 
 def main():

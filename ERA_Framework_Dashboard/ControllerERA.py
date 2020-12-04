@@ -5,14 +5,14 @@
 
 # imports
 import dash
-from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
-import ERA_Framework_Dashboard.ModelERA as modelERA
-import pandas as pd
+import dash_cytoscape as cyto
+from dash.dependencies import Output, Input, State
 import dash_html_components as html
+import pandas as pd
+import ERA_Framework_Dashboard.ModelERA as modelERA
 import ERA_Framework_Dashboard.ViewERA as viewERA
 import ERA_Framework_Dashboard.assets.Stylesheets as styleERA
-import dash_cytoscape as cyto
 
 
 class ControllerERA:

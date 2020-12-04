@@ -1,19 +1,23 @@
 # imports
+from abc import ABC, abstractmethod
 import json
 import requests
 from ERA_Framework_Generator.Vulnerability import Vulnerability
 
 
-class CVEConnector:
+class CVEConnector(ABC):
 
-    def __get_vulnerabilities(self, product: str, vendor: str, version: str) -> json:
+    @abstractmethod
+    def _get_vulnerabilities(self, product: str, vendor: str, version: str) -> json:
         """Send a request to the CVE DB to receive all vulnerabilities for a product to a vendor and a version"""
         pass
 
-    def __parse_response_into_vulnerabilities(self, file: json) -> dict:
+    @abstractmethod
+    def _parse_response_into_vulnerabilities(self, file: json) -> dict:
         """Parse the response JSON and create Vulnerability objects"""
         pass
 
+    @abstractmethod
     def get_all_vulnerabilities_per_technology(self, technologies: dict) -> dict:
         """Loop over all technologies and get all vulnerabilites and their dependencies within the techn. objects"""
         pass
@@ -26,7 +30,7 @@ class NVDConnector(CVEConnector):
         self.HOST = 'https://services.nvd.nist.gov/rest/json/cves/1.0?cpeMatchString=cpe:2.3:*:'
         self.vulnerabilities: dict = {}
 
-    def __get_vulnerabilities(self, product: str, vendor: str, version: str) -> json:
+    def _get_vulnerabilities(self, product: str, vendor: str, version: str) -> json:
 
         # replace empty chars with "_" and lower case the product and vendor names
         product = product.replace(" ", "_").lower()
@@ -42,7 +46,7 @@ class NVDConnector(CVEConnector):
             json_response = {}
         return json_response
 
-    def __parse_response_into_vulnerabilities(self, file: json) -> dict:
+    def _parse_response_into_vulnerabilities(self, file: json) -> dict:
         # helper dictionary to store vulnerabilites per technology
         vulnerabilities_technology: dict = {}
 
@@ -84,8 +88,8 @@ class NVDConnector(CVEConnector):
             tech_obj = technologies[technology]
 
             # get all vulnerabilites in a dictionary for one specific technology
-            vulnerabilities_help = self.__parse_response_into_vulnerabilities(
-                self.__get_vulnerabilities(tech_obj.product, tech_obj.vendor, tech_obj.version))
+            vulnerabilities_help = self._parse_response_into_vulnerabilities(
+                self._get_vulnerabilities(tech_obj.product, tech_obj.vendor, tech_obj.version))
 
             # add the vulnerabilites from one technology to all vulnerabilites
             self.vulnerabilities.update(vulnerabilities_help)

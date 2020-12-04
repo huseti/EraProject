@@ -1,4 +1,8 @@
-class Asset:
+# imports
+from abc import ABC
+
+
+class Asset(ABC):
 
     # Constructor
     def __init__(self, id: int, name: str):
